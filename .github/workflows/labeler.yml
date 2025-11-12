@@ -1,13 +1,63 @@
 name: "Pull Request Labeler"
 
 on:
-  pull_request_target:
-    types: [opened, synchronize]
+  workflow_call:
+    inputs:
+      artifact_id:
+        description: 'Unique identifier for artifacts'
+        required: true
+        type: string
 
 permissions:
   contents: read
-
+  
 jobs:
+  clone_missing_labels:
+    permissions: 
+      contents: read
+      pull-requests: write
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
+    steps:
+    - name: Checkout action
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+    - name: Add labels from labels_bulk.json
+      run: |
+        # Path to the static JSON file
+        LABELS_FILE=".github/labels_bulk.json"
+
+        # Determine the current repository (target repository)
+        TARGET_REPO="${GITHUB_REPOSITORY}"
+
+        echo "Cloning labels from ${LABELS_FILE} to $TARGET_REPO..."
+
+        # Load labels from the static JSON file
+        SOURCE_LABELS=$(cat "$LABELS_FILE")
+
+        # Fetch labels from the target repository for comparison
+        TARGET_LABELS=$(gh label list --repo "$TARGET_REPO" --json name --limit 1000)
+
+        # Loop through all labels in the static JSON file
+        echo "$SOURCE_LABELS" | jq -c '.[]' | while read -r label; do
+          LABEL_NAME=$(echo "$label" | jq -r '.name')
+          LABEL_COLOR=$(echo "$label" | jq -r '.color')
+          LABEL_DESCRIPTION=$(echo "$label" | jq -r '.description')
+
+          # Check if the label already exists in the target repository
+          if ! echo "$TARGET_LABELS" | jq -e --arg NAME "$LABEL_NAME" '.[] | select(.name == $NAME)' > /dev/null; then
+            # Create the label if it doesn't exist
+            echo "Creating label: $LABEL_NAME..."
+            gh label create "$LABEL_NAME" --repo "$TARGET_REPO" --force --color "$LABEL_COLOR" --description "$LABEL_DESCRIPTION"
+          else
+            echo "Label '$LABEL_NAME' already exists in $TARGET_REPO. Skipping..."
+          fi
+        done
+
+        echo "All labels cloned successfully!"
+
   label:
     permissions:
       contents: read
@@ -24,3 +74,15 @@ jobs:
       - uses: srvaroa/labeler@e216fb40e2e6d3b17d90fb1d950f98bee92f65ce # master
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Generate label artifact
+        run: |
+          echo "Generating label artifact..."
+          mkdir -p labeler
+          echo "Labels processed for ${{ inputs.artifact_id }}" > labeler/labeler.txt
+
+      - name: Upload label artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ${{ inputs.artifact_id }}
+          path: labeler/

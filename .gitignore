@@ -38,10 +38,26 @@
 
 # Swift Package Manager build directory
 /.build
+# docs:incremental and docs:ide_support build artifacts
+/_build
+/build
 
 venv
 
 nlohmann_json.spdx
 
 # Bazel-related
+bazel-*
 MODULE.bazel.lock
+user.bazelrc
+
+/temp
+/TSF/temp
+
+/TSF/docs/generated
+# temporary folder used for generation of list of test-results
+/artifacts
+
+/.venv
+
+__pycache__/
