@@ -5,6 +5,13 @@ The misbehaviours are compiled from github issues of the nlohmann/json repositor
 
 ## Open issues
 
+### [#5002](https://github.com/nlohmann/json/issues/5002)
+- **Title:** VS2026 Insiders, C2678 With C++23 Modules
+- **State:** OPEN
+- **Created At:** 2025-11-18T20:45:50Z
+
+
+
 ### [#4996](https://github.com/nlohmann/json/issues/4996)
 - **Title:** Tests don't build with VS 2026
 - **State:** OPEN
