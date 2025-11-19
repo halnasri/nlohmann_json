@@ -10,11 +10,16 @@ For each item of the trustable graph, the hash is calculated by trudag using:
 * for every of its references, the *content* of that reference
 * for every of its fallacies, the description and content of the corresponding reference
 
-Custom references are defined in `references.py`. A (custom) reference is used by adding an object into the list `references` in the header of the item file. The `type` corresponds to the classmethod `type` of a reference class of `references.py`, and the remaining object correspond to the arguments of the constructor.
+Custom references are defined and implemented in `references.py`. A (custom) reference is then used by adding a corresponding entry into the list references in the header of an item file. The type of this entry corresponds to the `classmethod` type of a reference class in `references.py`, and the remaining fields correspond to the arguments of the constructor of the reference.
 
 ## CPPTestReference
 
-The content of a `CPPTestReference` is given by the lines of code corresponding to a test-case or a section of a test-case in a specified unit-test-file. The sections are identified in the value of "name", where the nested sections are separated by semicolons.
+The content of a `CPPTestReference` is the C++ source lines corresponding to a test-case or a section within a test-case in a specified unit test file. Nested sections are given in the name argument and are separated by semicolons. Section detection works by searching for a matching TEST_CASE("...") or SECTION("...") and then for nested SECTIONs in order. It assumes the section path is unique in the file.
+
+Error handling:
+
+- Raises ValueError if the start line of the section cannot be found, if the opening brace is not where expected, or if no matching closing brace is found.
+- File I/O errors propagate if the file cannot be read.
 
 For the `CPPTestReference` the expected configuration is:
 ```
@@ -23,7 +28,7 @@ For the `CPPTestReference` the expected configuration is:
 
 references:
 - type: cpp_test
-  name: "compliance tests from json.org;expected failures"
+  name: "compliance tests from json.org;expected failures"  # Uses semicolon-separated section names to identify nested sections (e.g., "TEST_CASE_NAME;SECTION_A;SECTION_B")
   path: "tests/src/unit-testsuites.cpp"
 ---
 ```
@@ -44,17 +49,17 @@ references:
 - type: JSON_testsuite
   name: "compliance tests from json.org;expected failures"
   path: "tests/src/unit-testsuites.cpp"
-  test_suite_paths: 
+  test_suite_paths: # List of JSON file paths (strings) to load from the test data branch
     - "/json_tests/fail2.json"
     - "/json_tests/fail3.json"
   description: "invalid json"
-  remove_other_test_data_lines: False # optional, the default value is True 
+  remove_other_test_data_lines: False # optional, the default value is True; Removes all other test data lines in the test case or in a section of the test case, as given by the value of "name"
 ---
 ```
 
 ## FunctionReference
 
-The content of a `FunctionReference` is given by the code inclusive all comments of a C++ function within a class in a specified file in the repository. The specific position, i.e. start- and end-line, of the code within that file is not part of the content.  
+The content of a FunctionReference is the source code (including all comments) of a single C++ member function defined inside a class body, extracted from a specified file in the repository. The exact start/end line numbers in the file are not part of the content; only the function’s code text is captured.
 
 For the `FunctionReference` an example is:
 ```
@@ -68,8 +73,16 @@ references:
 ---
 ```
 
-Since functions may be overloaded, a `FunctionReference` can be initialised with an optional overload-parameter. 
-The overload-parameter specifies which implementation of the function is referred to, i.e. if the overload-parameter for the function ``class::function()`` is set to _n_, then the _n_-th implementation when counting the occurrences from top to bottom of ``function()`` within the class ``class`` is used, if it exists; otherwise, an error is thrown. Additionally, it is possible, but not mandatory, to give a description. The full example is:
+Since functions may be overloaded, the optional `overload` parameter selects which implementation to capture. Overloads are counted by occurrences of  `FunctionName(` at the class’s top level, in order from top to bottom within the class body. If overload is not provided, the first occurrence (1) is used.
+
+Error handling:
+
+- If name is not of the form `ClassName::FunctionName`, a ValueError is raised.
+- If brace tracking fails while parsing the class (e.g., popping from an empty stack), a ValueError is raised with a “Fatal error” message.
+- If the requested overload cannot be found within the detected class, an error is raised.
+- If the file cannot be opened, Python’s file I/O errors propagate.
+
+Additionally, it is possible, but not mandatory, to give a description. The full example is:
 ```
 ---
 ...
@@ -85,9 +98,9 @@ references:
 
 ## WebReference
 
-The content of a `WebReference` is its url. This reference is intended to be utilised in case that the content of the web-site is constantly changing (e.g. due to a clock being implemented somewhere on the site), but the reviewer is certain that the type of the content and it being supportive of the statement is fulfilled as long a the website is reachable. An example is `https://introspector.oss-fuzz.com/project-profile?project=json`, where the most recent fuzz-testing report for nlohmann/json is published.
+The content of a `WebReference` is its url string. This is suitable when the page is expected to change continuously (e.g., dashboards or status pages), but the type of content and its supportive role are considered sufficient if the URL is reachable. An example is `https://introspector.oss-fuzz.com/project-profile?project=json`, where the most recent fuzz-testing report for nlohmann/json is published. Additionally, an optional description can be provided.
 
-Whenever using the WebReference for a statement, it is recommended to create a corresponding http_response_time validator to automatically verify that the website is indeed available.
+Recommendation: Whenever using the WebReference for a statement, it is recommended to create a corresponding http_response_time validator to automatically verify that the website is indeed available.
 
 For the `WebReference`, an example is:
 ```
@@ -113,11 +126,11 @@ references:
 
 ## WebContentReference
 
-The content of a `WebContentReference` is its content. This reference is intended to be utilised in case of *static* references, that should not vary in a short time-frame, and whose content is most important for the trustability of the statement. An example is a file located on a github repository, e.g.  `https://raw.githubusercontent.com/nlohmann/json/refs/heads/develop/.github/workflows/cifuzz.yml`
+The content of a `WebContentReference` is the actual fetched content of the URL. Use this for relatively static resources whose textual content itself matters (e.g., a file in a public repository). An example is a file located on a github repository, e.g.  `https://raw.githubusercontent.com/nlohmann/json/refs/heads/develop/.github/workflows/cifuzz.yml`
 
 A `WebContentReference` looks identical to a `WebReference` with `type: web_content` instead of `type: website`.
 
-For the `TimeVaryingWebReference`, examples of the possible configurations are:
+For the `WebContentReference`, examples of the possible configurations are:
 ```
 ---
 ...
@@ -142,17 +155,16 @@ in case of a custom description.
 
 ## TimeVaryingWebReference
 
-This reference type is intended for websites whose content evolves constantly, making a static WebContentReference unsuitable, while still letting the state of the project at the time of an update influence trustability. For example, https://github.com/nlohmann/json/pulse/monthly can be used to demonstrate that nlohmann/json is up to the most recent version under active development. The content of a TimeVaryingWebReference is determined by a changelog file in this repository. By default, this is ChangeLog.md, which mirrors the upstream changelog of nlohmann/json. 
+Use this reference when the content of a site changes continuously, but you want the trustability of your report to depend on the project’s state in your repository. The content for hashing is the changelog file from this repository prefixed with the URL. For example, https://github.com/nlohmann/json/pulse/monthly can be used to demonstrate that `nlohmann/json` is up to the most recent version under active development. The content of a `TimeVaryingWebReference` is determined by a changelog file in this repository. By default, this is `ChangeLog.md`, which mirrors the upstream changelog of `nlohmann/json`. 
 
-Whenever using the WebReference for a statement, it is recommended to create a corresponding http_response_time validator to automatically verify that the website is indeed available.
-
+As with WebReference, consider an https_response_time validator to check reachability of the URL if needed.
 
 Important clarifications:
 
-The system checks the ChangeLog.md within our own repository. It does not read or rely on external changelogs or any files in external repositories.
-Whenever nlohmann/json publishes a new release/patch and we integrate it into our repository, our ChangeLog.md will be updated accordingly (since we mirror upstream changes). Any change to this changelog will automatically set the review_status of all TimeVaryingWebReferences to unreviewed, meaning they are invalidated and must be re-reviewed.
-The changelog argument defaults to "ChangeLog.md", which is the correct path to the changelog in this repo. You only need to specify the changelog argument if the file is moved or renamed.
-An example of the complete configuration for TimeVaryingWebReference (overriding the changelog path) is:
+The system checks the `ChangeLog.md` within our own repository. It does not read or rely on external changelogs or any files in external repositories.
+Whenever `nlohmann/json` publishes a new release/patch and we integrate it into our repository, our `ChangeLog.md` will be updated accordingly (since we mirror upstream changes). Any change to this changelog will automatically set the review_status of all TimeVaryingWebReferences to unreviewed, meaning they are invalidated and must be re-reviewed.
+The changelog argument defaults to `ChangeLog.md`, which is the correct path to the changelog in this repo. You only need to specify the changelog argument if the file is moved or renamed.
+An example of the complete configuration for `TimeVaryingWebReference` (overriding the changelog path) is:
 
 
 ---
@@ -164,7 +176,7 @@ references:
   changelog: "ideas/graded/graded_Serre_Swan.tex"
 ---
 
-In the common case (using the default ChangeLog.md in this repository), you can omit the changelog argument:
+In the common case (using the default ChangeLog.md in this repository), you can omit the `changelog` argument:
 
 
 ---
@@ -174,12 +186,11 @@ references:
   url: "https://github.com/nlohmann/json/pulse/monthly"
   description: "Development activity for nlohmann/json"
 ---
-Both description and changelog are optional arguments.
+Both `description` and `changelog` are optional arguments.
 
 ## ListOfTestCases
 
-The content of a `ListOfTestCases` is given by the list of test-cases extracted from the unit-tests given in the files in the provided directories. 
-It is assumed that a unit-test is saved in a file with the name unit-xxx.cpp, and only those files are used to compile the list. 
+The content of a ListOfTestCases is a markdown report listing all unit tests and their nested sections extracted from the specified directories/files, together with recent execution environments (from a SQLite database). It is assumed that a unit-test is saved in a file with the name unit-xxx.cpp, and only those files are used to compile the list. 
 Further, it is assumed that a unit-test-file is structured as
 
 ```
