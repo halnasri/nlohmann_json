@@ -54,14 +54,14 @@ dependencies.
 **Checklist**
 
 - Where are the change and configuration management controls specified?
-  - **Answer**: In the contribution guidelines and security policy. 
+  - **Answer**: In the [contribution guidelines](https://github.com/nlohmann/json?tab=contributing-ov-file#readme) and [security policy](https://github.com/nlohmann/json?tab=security-ov-file#readme). 
 - Are these controls enforced for all of components, tools, data, documentation and configurations?
   - **Answer**: Yes. Any proposed change is subject to the same change controls.
 - Are there any ways in which these controls can be subverted, and have we mitigated them?
   - **Answer**: No. The controls are enforced using branch protection rules and are mostly automated.
 - Does change control capture all potential regressions?
-  - **Answer**: Yes. All changes are rigorously tested in a separate branch before being deployed to the master branch.
+  - **Answer**: Yes. All changes are tested in the branch '[develop](https://github.com/nlohmann/json/actions?query=branch%3Adevelop)' before being deployed to the master branch.
 - Is change control timely enough?
-  - **Answer**: The change control is indeed timely enough, mainly due to the fact that the nlohmann/json library is open source and has many contributors.
+  - **Answer**: The change control is indeed timely enough. Any [issues](https://github.com/nlohmann/json/issues) or [discussions](https://github.com/nlohmann/json/discussions) opened are addressed within a reasonable time frame.
 - Are all guidance and checks understandable and consistently followed?
-  - **Answer**: Yes. The contribution guidelines and CI workflows are clear and well-documented, as well as automatically enforced.
+  - **Answer**: Yes. The [contribution guideline](https://github.com/nlohmann/json?tab=contributing-ov-file#readme) is clear and well-documented, and checks are enforced through automatic [CI workflows](https://github.com/nlohmann/json/tree/develop/.github/workflows).

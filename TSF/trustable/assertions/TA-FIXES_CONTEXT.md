@@ -73,7 +73,7 @@ Each iteration, we should improve the algorithm based on measurements
 **Checklist**
 
 - How many faults have we identified in nlohmann/json?
-  - **Answer**: None that are relevant for S-CORE's use case of the library.
+  - **Answer**: 58, but none are relevant for S-CORE's use case of the library (see JLS-11).
 - How many unknown faults remain to be found, based on the number that have
   been processed so far?
   - **Answer**: It is unlikely that there are unknown faults relevant to S-CORE.
@@ -99,7 +99,7 @@ Each iteration, we should improve the algorithm based on measurements
 - How many components have never been updated?
   - **Answer**: None, the nlohmann/json library consists of a single header file, which the only component. This component is up to date.
 - How confident are we that we could update them?
-  - **Answer**: If a new version of the nlohmann/json library is released, we are very confident that we can update to that version.
+  - **Answer**: Within nlohmann/json, there are no external components to update. Within S-CORE, if a new version of the nlohmann/json library is released, we are very confident that we can update to that version. (See the update process in TSF/README.md)
 - How confident are we that outstanding fixes do not impact our Expectations?
   - **Answer**: No outstanding fixes that impact the Expectation have been identified.
 - How confident are we that outstanding fixes do not address Misbehaviours?
