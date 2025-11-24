@@ -43,7 +43,7 @@ Ultimately, the trustable controlled process is the only path to production for 
 **Evidence**
 
 - change management process and configuration artifacts
-  - **Answer**: Provided in JLS-06, JLS-07, JLS-12, JLS-32, JLS-34 and JLS-35. 
+  - **Answer**: Provided in JLS-06, JLS-07, JLS-12, JLS-32, JLS-34, JLS-35 and AOU-27. 
 
 **Confidence scoring**
 
