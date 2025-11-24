@@ -5,6 +5,20 @@ The misbehaviours are compiled from github issues of the nlohmann/json repositor
 
 ## Open issues
 
+### [#5013](https://github.com/nlohmann/json/issues/5013)
+- **Title:** An object is used after it's moved
+- **State:** OPEN
+- **Created At:** 2025-11-24T15:32:02Z
+
+
+
+### [#5012](https://github.com/nlohmann/json/issues/5012)
+- **Title:** error_handler_t::ignore documentation is incorrect
+- **State:** OPEN
+- **Created At:** 2025-11-24T14:21:24Z
+
+
+
 ### [#5005](https://github.com/nlohmann/json/issues/5005)
 - **Title:** Serialization of double type data gets stuck
 - **State:** OPEN
