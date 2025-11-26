@@ -48,7 +48,7 @@ to TT-RESULTS analysis.
 - evidence of configuration management for build instructions and infrastructure
   - **Answer**: Provided by JLS-10 and JLS-19.
 - evidence of repeatable builds
-  - **Answer**:
+  - **Answer**: Provided by JLS-53.
 
 **Confidence scoring**
 
@@ -74,7 +74,7 @@ R / (R + N + B + M / (M + X))
 - Are our builds repeatable on a different server, or in a different context?
   - **Answer**: Since there is no "build" of the header-only library, yes.
 - How sure are we that our builds don't access the internet?
-  - **Answer**: 
+  - **Answer**: # Currently thinking about a good answer to this question
 - How many of our components are non-reproducible?
   - **Answer**:  All of our components are reproducable, since we only use a single component, the nlohmann/json library.
 - How confident are we that our reproducibility check is correct?
