@@ -48,7 +48,7 @@ to TT-RESULTS analysis.
 - evidence of configuration management for build instructions and infrastructure
   - **Answer**: Provided by JLS-10 and JLS-19.
 - evidence of repeatable builds
-  - **Answer**: Provided by AOU-08.
+  - **Answer**:
 
 **Confidence scoring**
 
@@ -74,7 +74,7 @@ R / (R + N + B + M / (M + X))
 - Are our builds repeatable on a different server, or in a different context?
   - **Answer**: Since there is no "build" of the header-only library, yes.
 - How sure are we that our builds don't access the internet?
-  - **Answer**: AOU-08 ensures that the integrator uses a built server without internet access, achieved through mirroring of all necessary source files and build tools within eclipse-score/inc_nlohmann_json.
+  - **Answer**: 
 - How many of our components are non-reproducible?
   - **Answer**:  All of our components are reproducable, since we only use a single component, the nlohmann/json library.
 - How confident are we that our reproducibility check is correct?
