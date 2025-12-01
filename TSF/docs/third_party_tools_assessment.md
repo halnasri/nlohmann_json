@@ -90,54 +90,76 @@ This file provides an assessment of all third-party tools used in the developmen
   - All changes to the CMake files are tracked in version control and go through pull-request review. They must pass the full CI matrix before being merged, which reduces the risk that a broken CMake configuration is used for a release.
 
 ### Codacy
-- **Role**: Automated code quality analysis
-- **Potential Misbehaviours**: Could report false positives/negatives, miss actual code quality issues
-- **Severity**: Low - informational only
-- **Detectability**: High - complemented by other tools
-- **Mitigation**: Multiple static analysis tools (Coverity, cppcheck, clang-tidy), manual code review
+- **Role**: Codacy is a hosted code quality and static analysis service that is connected to the nlohmann/json repository. It automatically analyzes new commits and pull requests with various C++ linters and rules, and then reports findings such as style issues, potential bugs, complexity problems, and code smells in a web dashboard and as comments on pull requests.
+- **Potential Misbehaviours**: Codacy can:
+  - report false positives,
+  - miss real issues (false negatives),
+  - change its rules or analyzers over time, so that the same code can produce different warnings at different points in time even if the project itself has not changed.  
+- **Severity**: Low - Codacy is purely informational. It does not modify any code.
+- **Detectability**: High - Codacy’s findings are visible alongside results from other tools (e.g. Coverity, cppcheck, compiler warnings), and discrepancies or obviously wrong reports are easy to spot during code review.
+- **Mitigation**: Multiple static analysis tools (Coverity, cppcheck, clang-tidy) and manual code review.
 
 ### Coveralls
-- **Role**: Code coverage measurement and reporting
-- **Potential Misbehaviours**: Could report incorrect coverage metrics, give false confidence
-- **Severity**: Medium - could hide untested code paths
-- **Detectability**: Medium - validated by local lcov reports
-- **Mitigation**: Local coverage generation with lcov, manual inspection of critical paths, 100% coverage target
+- **Role**: Coveralls is a hosted service for code coverage measurement and reporting. In the nlohmann/json project, coverage data produced during the Ubuntu CI workflow is uploaded to Coveralls from the GitHub Actions workflow `.github/workflows/ubuntu.yml` using the `coverallsapp/github-action` step (“Publish report to Coveralls”). The resulting coverage information is shown on the project’s Coveralls page and is linked as a badge in the README.
+- **Potential Misbehaviours**: Coveralls can:
+  - display incorrect coverage percentages or mark lines as covered/uncovered incorrectly,
+  - lose or mix up coverage history, which can make trends look better or worse than they are,
+  - be temporarily unavailable.  
+- **Severity**: Medium - Misleading coverage information can cause important parts of the code to remain untested, even when the coverage dashboard looks “green”.
+- **Detectability**: Medium - Inconsistencies can be compared against local coverage runs. 
+- **Mitigation**:
+  - Coverage is also generated locally and in CI using `lcov` and viewed as HTML reports, so Coveralls results can be cross-checked against these local reports.
 
 ### Coverity Scan
-- **Role**: Static analysis for bug detection
+- **Role**: Coverity Scan is a hosted static analysis service that regularly analyzes the nlohmann/json code base for potential defects. The nlohmann/json repo has a dedicated Coverity Scan entry (linked via the “Coverity Scan Build Status” badge in `README.md`), where findings are listed and tracked in a web dashboard.
 - **Potential Misbehaviours**: Could miss bugs (false negatives) or report non-issues (false positives)
-- **Severity**: Medium - missed bugs affect quality
-- **Detectability**: High - cross-validated with other tools
-- **Mitigation**: Multiple static analyzers (cppcheck, clang-tidy, Codacy), extensive testing
+- **Severity**: Medium - Missed bugs or misinterpreted reports can affect the quality of the library.
+- **Detectability**: High – Coverity Scan findings are d compared with results from other static analyzers (such as cppcheck and Codacy), compiler warnings, and the behaviour observed in tests and fuzzing. 
+- **Mitigation**: Multiple static analyzers (cppcheck, clang-tidy, Codacy), extensive testing.
 
 ### cppcheck
-- **Role**: Static analysis for C++ code
-- **Potential Misbehaviours**: False positives could waste developer time, false negatives could miss bugs
-- **Severity**: Medium - missed issues could affect users
-- **Detectability**: High - complemented by other analyzers
-- **Mitigation**: Multiple static analysis tools (Coverity, clang-tidy), compiler warnings enabled, extensive unit tests
+- **Role**: Cppcheck is a static analysis tool for C++ that is used to scan the nlohmann/json library code base for potential problems such as null dereferences, uninitialized variables, dead code, or suspicious constructs.
+- **Potential Misbehaviours**: False positives could waste developer time, false negatives could miss bugs.
+- **Severity**: Medium - Missed issues (false negatives) can affect users if they are not caught by other tools or tests. However, its output is advisory, and problems only enter the code base if humans misinterpret or ignore the results.
+- **Detectability**: High - Cppcheck’s findings are viewed together with other static analyzers (such as Coverity and Codacy), compiler warnings from different compilers and the behaviour observed in unit tests and fuzzing.  
+- **Mitigation**: Multiple static analysis tools (Coverity, clang-tidy), compiler warnings enabled, extensive unit tests.
 
 ### doctest
-- **Role**: Unit testing framework
-- **Potential Misbehaviours**: Test framework bugs could cause false passes/fails, hide actual bugs
-- **Severity**: High - false passes could ship bugs
-- **Detectability**: High - tests validated across platforms and compilers
-- **Mitigation**: Cross-platform testing, multiple test runs, manual verification of critical functionality
+- **Role**: Doctest is the C++ open source unit testing framework used by nlohmann/json for its internal test suite. The project’s unit tests are implemented in source files under `tests/src/` (for example `tests/src/unit-*.cpp`), where test cases are written using doctest macros such as `TEST_CASE`, `CHECK`, and `REQUIRE`.
+- **Potential Misbehaviours**: Doctest itself can have bugs or limitations. This can lead to situations of:
+  - false passes, for example if an assertion macro does not correctly detect a failing condition or if failures are swallowed by the framework,
+  - false failures, for example due to issues with test registration, command-line handling, or interaction with specific compilers and optimisation levels,
+  - some test cases are never discovered or executed (for example if certain `TEST_CASE` definitions are not registered correctly in some build configurations).  
+- **Severity**: High - The doctest-based unit tests are a key mechanism for ensuring correctness of the library before changes are merged or releases are made. If doctest hides real failures or silently skips tests, bugs can remain undetected and be shipped to users. 
+- **Detectability**: High - Framework problems are partly detectable because the same doctest-based test suite is compiled and executed with multiple compilers (such as Clang, GCC, and MSVC) and on different platforms, so framework or configuration issues often show up as differences between environments or as unexpected crashes in the test binaries.
+- **Mitigation**:
+  - The doctest-based tests are run in a broad CI matrix (different operating systems, compilers, and standard libraries), which helps reveal framework or configuration issues that only appear under certain toolchains.
+  - For critical functionality and previously fixed defects, test coverage is reinforced by additional checks such as fuzzing, sanitizer runs, and targeted manual tests.
+  - When a discrepancy is suspected, new test cases are added or existing ones are refined, improving both test coverage and the chance to notice framework-related issues.
+  - All changes to the tests or to the way doctest is integrated (e.g. via CMake) go through normal pull requests, are reviewed by maintainers, and must pass the full CI test matrix.
 
 ### GitHub Changelog Generator
-- **Role**: Generates ChangeLog.md from GitHub issues
-- **Potential Misbehaviours**: Could miss entries, include wrong information, incorrect formatting
-- **Severity**: Low - documentation only, doesn't affect library functionality
-- **Detectability**: High - manual review of changelog
-- **Mitigation**: Manual review and editing of generated changelog, version control tracking
-
+- **Role**: GitHub Changelog Generator is a tool that uses the GitHub API to collect issues, pull requests, and tags from the nlohmann/json repository and then generates a `ChangeLog.md` file from this information. It is used to create a human-readable list of changes for releases.
+- **Potential Misbehaviours**: The tool can miss entries, include wrong or misleading information or produce poorly formatted output (e.g. broken Markdown or duplicated entries).  
+- **Severity**: Low - Even if the generated changelog is incomplete or inaccurate, this only affects documentation and release notes. It does not change the any code of the library or its functionality.
+- **Detectability**: High - Incorrect or missing entries, odd wording, or broken formatting in `ChangeLog.md` are usually easy to spot when maintainers review the file before a release. Users may also report inconsistencies if they notice them.
+- **Mitigation**:
+  - The generated `ChangeLog.md` is committed to version control and reviewed and edited manually by maintainers before a release.
+  - If the generator’s configuration leads to repeated problems (e.g. systematically missing certain types of issues), the configuration or the generation process can be adjusted, and older changelog entries can be corrected in the repository.
+  - Because the changelog is under version control, any mistakes can be fixed later, and the history of changes to `ChangeLog.md` is traceable.
+    
 ### Google Benchmark
-- **Role**: Performance benchmarking
-- **Potential Misbehaviours**: Incorrect benchmark results could mislead performance optimization efforts
-- **Severity**: Low - doesn't affect library correctness
-- **Detectability**: High - benchmarks run consistently across platforms
-- **Mitigation**: Multiple benchmark runs, cross-platform validation, manual performance analysis
-
+- **Role**: Google Benchmark is a C++ microbenchmarking framework used in nlohmann/json to implement standalone performance benchmarks for the library. The benchmark program in `tests/benchmarks/src/benchmarks.cpp` uses the Google Benchmark API to measure operations such as `json::parse`, `dump`, and conversions to binary formats (e.g. CBOR) on representative JSON files, so maintainers can track performance and detect regressions between versions.
+- **Potential Misbehaviours**:  Google Benchmark can:
+  - produce noisy or misleading measurements if the environment is unstable (e.g. different CPUs, background load, power-saving modes),
+  - encourage microbenchmarks that are not representative of real-world usage, leading to optimizations that improve benchmark numbers but not actual user workloads,
+  - be misconfigured, which can bias results or exaggerate small differences.  
+- **Severity**: Low - Incorrect or misleading benchmark results can waste time or lead to suboptimal performance decisions, but they do not affect the functional correctness or safety of the library.
+- **Detectability**: High - suspicious benchmark results can usually be identified by rerunning the benchmarks on the same and on different machines and by comparing results across compilers, optimization levels, and configurations. 
+- **Mitigation**:
+  - Performance changes suggested by Google Benchmark results are not accepted blindly, maintainers manually interpret the data and consider how realistic the benchmarked scenarios are for typical users.
+  - Functional tests and fuzzing remain the primary gate for correctness.
+    
 ### Hedley
 - **Role**: Compiler-agnostic feature detection macros (included as source)
 - **Potential Misbehaviours**: Incorrect macro definitions could cause compilation failures or runtime issues
