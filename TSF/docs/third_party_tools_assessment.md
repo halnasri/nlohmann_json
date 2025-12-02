@@ -56,7 +56,6 @@ This file provides an assessment of all third-party tools used in the developmen
 
 ### Clang
 - **Role**:  One of the main compilers used to build and test the library. In CI it is also used with sanitizers such as AddressSanitizer and UndefinedBehaviorSanitizer. These sanitizers are special compiler modes that make the program crash with a clear error message when it does things like reading/writing invalid memory or relying on undefined behaviour, so such bugs are easier to find during testing.
-
 - **Potential Misbehaviours**: Clang itself, or its sanitizers, can have bugs. This can lead to:
   - wrong binary code being generated,
   - some memory or undefined-behaviour problems not being detected,
@@ -76,7 +75,6 @@ This file provides an assessment of all third-party tools used in the developmen
   - missing or incorrectly detected dependencies and features,
   - wrong compiler or linker flags (e.g. no debug info, missing warnings, wrong standard version).  
   In such cases, the code itself may be correct, but the way it is built and tested is not what the developers expect.
-
 - **Severity**: High - If CMake generates a wrong build configuration, all builds that rely on it can be affected
 - **Detectability**: High - most CMake-related problems show up as:
   - build failures in CI or on user systems,
@@ -252,18 +250,30 @@ Each tool was evaluated based on:
 
 ## Risk Categorization
 
-### High Severity, High Detectability
-- **amalgamate.py, CMake, Hedley**: Critical to build process but well tested and validated
-- **Clang, doctest**: Core to testing but cross-validated with multiple compilers and platforms
+The highest-severity tools are those that directly affect the build and test artefact, namely amalgamate.py, CMake, Hedley, Clang and doctest, while the fuzzing tools AFL, libFuzzer and OSS-Fuzz are assessed as medium severity with low detectability, and the documentation and automation tools (such as MkDocs, Material for MkDocs, GitHub Changelog Generator and Probot) are considered low severity because they do not influence the library’s behaviour.
 
-### Medium Severity, High Detectability
-- **Coverity Scan, cppcheck, AppVeyor, Coveralls**: Analysis tools with multiple redundancies for cross checking
+| Tool                       | Severity | Detectability |
+|----------------------------|----------|---------------|
+| amalgamate.py              | High     | High          |
+| CMake                      | High     | High          |
+| Hedley                     | High     | High          |
+| Clang                      | High     | Medium        |
+| doctest                    | High     | High          |
+| Coverity Scan              | Medium   | High          |
+| cppcheck                   | Medium   | High          |
+| AppVeyor                   | Medium   | High          |
+| Coveralls                  | Medium   | Medium        |
+| AFL                        | Medium   | Low           |
+| libFuzzer                  | Medium   | Low           |
+| OSS-Fuzz                   | Medium   | Low           |
+| MkDocs                     | Low      | High          |
+| Material for MkDocs        | Low      | High          |
+| GitHub Changelog Generator | Low      | High          |
+| Probot                     | Low      | High          |
+| Google Benchmark           | Low      | High          |
+| lcov                       | Low      | High          |
+| Codacy                     | Low      | High          |
 
-### Medium Severity, Low Detectability
-- **AFL, libFuzzer, OSS-Fuzz**: Continuous fuzzing mitigates this through 24/7 operation and multiple fuzzers
-
-### Low Severity
-- **Documentation and process automation tools**: Do not affect library functionality
 
 ## Conclusion
 
@@ -271,7 +281,42 @@ The nlohmann/json project employs a multi validation strategy with multiple redu
 
 ## References
 
+### Project documentation
 - [nlohmann/json README - Used third-party tools](https://github.com/nlohmann/json/blob/v3.12.0/README.md#used-third-party-tools)
 - [nlohmann/json Quality Assurance](https://json.nlohmann.me/community/quality_assurance)
 - [CII Best Practices Badge](https://bestpractices.coreinfrastructure.org/projects/289)
 - [OpenSSF Scorecard](https://scorecard.dev/viewer/?uri=github.com/nlohmann/json)
+- [Design goals: Testing, Valgrind, Clang Sanitizers, OSS-Fuzz](https://json.nlohmann.me/home/design_goals/)
+
+### Source and build configuration
+
+- [`cmake/test.cmake` – CTest and `JSON_Valgrind` configuration](https://github.com/nlohmann/json/blob/master/cmake/test.cmake)
+- [`CMakeLists.txt` (root) – CMake integration and test setup](https://github.com/nlohmann/json/blob/master/CMakeLists.txt)
+- [Ubuntu CI workflow `.github/workflows/ubuntu.yml` (Coveralls upload)](https://github.com/nlohmann/json/blob/master/.github/workflows/ubuntu.yml)
+- [Docs build configuration `docs/mkdocs/mkdocs.yml`](https://github.com/nlohmann/json/blob/master/docs/mkdocs/mkdocs.yml)
+
+### Fuzzing
+
+- [OSS-Fuzz project profile `json`](https://introspector.oss-fuzz.com/project-profile?project=json)
+- [OSS-Fuzz project config for nlohmann/json](https://github.com/google/oss-fuzz/tree/master/projects/json)
+- [Integer-overflow (OSS-Fuzz issue 267)](https://github.com/nlohmann/json/issues/389)
+- [Heap-buffer-overflow / Stack-overflow reports](https://github.com/nlohmann/json/issues/577)
+
+### Static analysis, coverage, external services
+
+- [Coverity Scan project page for nlohmann/json](https://scan.coverity.com/projects/nlohmann-json)
+- [Coveralls page for nlohmann/json](https://coveralls.io/github/nlohmann/json)
+- [Codacy project for nlohmann/json](https://app.codacy.com/gh/nlohmann/json)
+- [lcov project documentation](https://github.com/linux-test-project/lcov)
+
+### Tool-specific external documentation
+
+- [doctest – C++ testing framework](https://github.com/doctest/doctest)
+- [Google Benchmark documentation](https://github.com/google/benchmark)
+- [Hedley – feature detection header](https://github.com/nemequ/hedley)
+- [libFuzzer documentation](https://llvm.org/docs/LibFuzzer.html)
+- [Valgrind documentation](https://valgrind.org/docs/manual/manual.html)
+- [MkDocs documentation](https://www.mkdocs.org/)
+- [Material for MkDocs documentation](https://squidfunk.github.io/mkdocs-material/)
+- [GitHub Changelog Generator](https://github.com/github-changelog-generator/github-changelog-generator)
+- [Probot framework](https://probot.github.io/)
