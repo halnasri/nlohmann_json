@@ -9,15 +9,15 @@ This file provides an assessment of all third-party tools used in the developmen
 ## Tool Assessment Summary
 
 ### amalgamate.py
-- **Role**: Third-party Python script, mirrored into the repository and is used to generate the single-header distribution file `json.hpp` from the modular source tree.
-- **Potential Misbehaviours**: The upstream README (https://github.com/edlund/amalgamate/blob/master/README.md) explicitly states that `amalgamate.py` is “quite dumb” and may produce “weird results” for non-trivial code. In particular, it only understands very simple `#include` directives and does not correctly handle:
+- **Role**: Third-party Python script, mirrored into the nlohmann/json repository and is used to generate the single-header distribution file `json.hpp` from the modular source tree.
+- **Potential Misbehaviours**: The upstream README (https://github.com/edlund/amalgamate/blob/master/README.md) explicitly states that `amalgamate.py` is "quite dumb" and may produce "weird results" for non-trivial code. In particular, it only understands very simple `#include` directives and does not correctly handle:
   - macro-based includes (e.g. `#define HEADER_PATH "x.h"` / `#include HEADER_PATH`),
   - certain assumptions about file endings (missing final newline, backslash-escaped newline).
 
    As a result, it could incorrectly merge files (wrong order, missing or duplicated code), fail to include required headers, or corrupt the generated header in subtle ways.
   
-   The script originates from an external project (mirrored into nlohmann/json repository) that is not under the direct control of the nlohmann/json maintainers and shows limited public maintenance activity.
-- **Severity**: High – Any undetected error in the amalgamated header would directly affect the library artefact.
+   The script originates from an external project that is not under the direct control of the nlohmann/json maintainers and shows limited public maintenance activity.
+- **Severity**: High – Any undetected error in the amalgamated header would directly affect the library's functionality.
 - **Detectability**: High – The generated `json.hpp` is stored in version control and built in CI, where it is compiled and run with the full unit test suite. This means that most structural or include-related problems show up as build or test failures, and more subtle issues are further reduced by the use of fuzz testing.
 - **Mitigation**:
   - The script is mirrored into the repository and thus fully auditable.
@@ -69,7 +69,7 @@ This file provides an assessment of all third-party tools used in the developmen
   - Static analysis tools (e.g. Coverity, cppcheck, Codacy) and dynamic tools (sanitizers, Valgrind) are used in addition to normal compilation and unit tests, which increases the chance of finding real issues even if one compiler or sanitizer misses them.
 
 ### CMake
-- **Role**:  Primary build system generator used to configure how the library’s internal targets are built on different platforms. CMake reads the project’s `CMakeLists.txt` files and generates platform-specific build files (e.g. Makefiles, Ninja files, Visual Studio projects) that control the compilation and linking of the unit test and optional helper tools (e.g. sanitizer), including the selection of compilers and the compiler flags used.
+- **Role**:  Primary build system generator used to configure how the library's internal targets are built on different platforms. CMake reads the project’s `CMakeLists.txt` files and generates platform-specific build files (e.g. Makefiles, Ninja files, Visual Studio projects) that control the compilation and linking of the unit test and optional helper tools (e.g. sanitizer), including the selection of compilers and the compiler flags used.
 - **Potential Misbehaviours**: CMake can be misconfigured or behave differently between versions, which can lead to:
   - wrong or incomplete build configurations (e.g. tests not being built or run),
   - missing or incorrectly detected dependencies and features,
@@ -83,7 +83,7 @@ This file provides an assessment of all third-party tools used in the developmen
   Such issues are usually noticed quickly when running builds on multiple systems.
 - **Mitigation**:
   - The root `CMakeLists.txt` in the nlohmann/json repository declares a minimum required CMake version (via `cmake_minimum_required(...)`), so too old or unsupported CMake versions are rejected at configure time rather than producing silently broken build files.
-  - The CMake-based build configuration is exercised in continuous integration on multiple platforms and compilers (Linux, macOS, Windows with Clang, GCC, and MSVC), as documented on the project’s “Quality assurance” page (https://json.nlohmann.me/community/quality_assurance/?utm_source=chatgpt.com#simple-integration).
+  - The CMake-based build configuration is exercised in continuous integration on multiple platforms and compilers (Linux, macOS, Windows with Clang, GCC, and MSVC), as documented on the project's “Quality assurance” page (https://json.nlohmann.me/community/quality_assurance/?utm_source=chatgpt.com#simple-integration).
   - The same CMake setup is used to configure and build the internal unit tests (via `enable_testing()` / `add_subdirectory(test)` in `CMakeLists.txt`) and the small example/demo programs described in the documentation, so incorrect build options or missing dependencies usually cause test or example targets to fail.
   - All changes to the CMake files are tracked in version control and go through pull-request review. They must pass the full CI matrix before being merged, which reduces the risk that a broken CMake configuration is used for a release.
 
@@ -94,11 +94,11 @@ This file provides an assessment of all third-party tools used in the developmen
   - miss real issues (false negatives),
   - change its rules or analyzers over time, so that the same code can produce different warnings at different points in time even if the project itself has not changed.  
 - **Severity**: Low - Codacy is purely informational. It does not modify any code.
-- **Detectability**: High - Codacy’s findings are visible alongside results from other tools (e.g. Coverity, cppcheck, compiler warnings), and discrepancies or obviously wrong reports are easy to spot during code review.
+- **Detectability**: High - Codacy's findings are visible alongside results from other tools (e.g. Coverity, cppcheck, compiler warnings), and discrepancies or obviously wrong reports are easy to spot during code review.
 - **Mitigation**: Multiple static analysis tools (Coverity, cppcheck, clang-tidy) and manual code review.
 
 ### Coveralls
-- **Role**: Coveralls is a hosted service for code coverage measurement and reporting. In the nlohmann/json project, coverage data produced during the Ubuntu CI workflow is uploaded to Coveralls from the GitHub Actions workflow `.github/workflows/ubuntu.yml` using the `coverallsapp/github-action` step (“Publish report to Coveralls”). The resulting coverage information is shown on the project’s Coveralls page and is linked as a badge in the README.
+- **Role**: Coveralls is a hosted service for code coverage measurement and reporting. In the nlohmann/json project, coverage data produced during the Ubuntu CI workflow is uploaded to Coveralls from the GitHub Actions workflow `.github/workflows/ubuntu.yml` using the `coverallsapp/github-action` step (“Publish report to Coveralls”). The resulting coverage information is shown on the project's Coveralls page and is linked as a badge in the README.
 - **Potential Misbehaviours**: Coveralls can:
   - display incorrect coverage percentages or mark lines as covered/uncovered incorrectly,
   - lose or mix up coverage history, which can make trends look better or worse than they are,
@@ -119,7 +119,7 @@ This file provides an assessment of all third-party tools used in the developmen
 - **Role**: Cppcheck is a static analysis tool for C++ that is used to scan the nlohmann/json library code base for potential problems such as null dereferences, uninitialized variables, dead code, or suspicious constructs.
 - **Potential Misbehaviours**: False positives could waste developer time, false negatives could miss bugs.
 - **Severity**: Medium - Missed issues (false negatives) can affect users if they are not caught by other tools or tests. However, its output is advisory, and problems only enter the code base if humans misinterpret or ignore the results.
-- **Detectability**: High - Cppcheck’s findings are viewed together with other static analyzers (such as Coverity and Codacy), compiler warnings from different compilers and the behaviour observed in unit tests and fuzzing.  
+- **Detectability**: High - Cppcheck's findings are viewed together with other static analyzers (such as Coverity and Codacy), compiler warnings from different compilers and the behaviour observed in unit tests and fuzzing.  
 - **Mitigation**: Multiple static analysis tools (Coverity, clang-tidy), compiler warnings enabled, extensive unit tests.
 
 ### doctest
@@ -143,7 +143,7 @@ This file provides an assessment of all third-party tools used in the developmen
 - **Detectability**: High - Incorrect or missing entries, odd wording, or broken formatting in `ChangeLog.md` are usually easy to spot when maintainers review the file before a release. Users may also report inconsistencies if they notice them.
 - **Mitigation**:
   - The generated `ChangeLog.md` is committed to version control and reviewed and edited manually by maintainers before a release.
-  - If the generator’s configuration leads to repeated problems (e.g. systematically missing certain types of issues), the configuration or the generation process can be adjusted, and older changelog entries can be corrected in the repository.
+  - If the generator's configuration leads to repeated problems (e.g. systematically missing certain types of issues), the configuration or the generation process can be adjusted, and older changelog entries can be corrected in the repository.
   - Because the changelog is under version control, any mistakes can be fixed later, and the history of changes to `ChangeLog.md` is traceable.
     
 ### Google Benchmark
@@ -165,20 +165,20 @@ This file provides an assessment of all third-party tools used in the developmen
   - trigger compilation errors or excessive warnings on some compilers,
   - silently disable useful attributes or diagnostics, which may lead to performance issues or missed warnings.
 - **Severity**: High - Hedley is used throughout the headers and affects how the library is compiled on all platforms. Incorrect macros can break builds or cause subtle differences in behaviour across compilers.
-- **Detectability**: High - most problems show up as build failures or unusual warnings on specific compilers or platforms, and are likely to be caught by the project’s CI matrix.
+- **Detectability**: High - most problems show up as build failures or unusual warnings on specific compilers or platforms, and are likely to be caught by the project's CI matrix.
 - **Mitigation**:
   - A specific version of Hedley is used in the nlohman/json repository and is fully under version control and updates are done via pull requests and must pass all CI checks before being included in a release 
   - The library is built and tested with multiple compilers (Clang, GCC, MSVC) and on multiple platforms in CI.
  
 ### lcov
-- **Role**: lcov is used in the nlohmann/json project as part of the coverage setup introduced together with the CMake-based build system (see ‘Added CMake and lcov’ in the project’s changelog and PR #6). It processes gcov output from the doctest-based unit tests to generate local HTML reports, which can be cross-checked against the coverage information published via Coveralls.
+- **Role**: lcov is used in the nlohmann/json project as part of the coverage setup introduced together with the CMake-based build system (see 'Added CMake and lcov' in the project's changelog and PR #6). It processes gcov output from the doctest-based unit tests to generate local HTML reports, which can be cross-checked against the coverage information published via Coveralls.
 - **Potential Misbehaviours**: lcov can misinterpret or partially ignore `gcov` data, so that some lines are shown as covered or uncovered incorrectly and generate incomplete or inconsistent HTML reports.
 - **Severity**: Low - lcov only reads coverage data and creates reports; it does not affect any code or the functionality of the lirary. 
-- **Detectability**: High - Inconsistencies can be detected by comparing lcov’s HTML output with the coverage data uploaded to Coveralls.
+- **Detectability**: High - Inconsistencies can be detected by comparing lcov's HTML output with the coverage data uploaded to Coveralls.
 - **Mitigation**: Mitigation through cross-validation with Coveralls and manual inspection of coverage data.
 
 ### libFuzzer
-- **Role**: libFuzzer is LLVM’s fuzzing engine that runs inside the test binary and uses code-coverage feedback to generate new inputs. In nlohmann/json it is used as the fuzzing backend for the fuzz harnesses under `tests/src/` (e.g. `fuzzer-parse_json.cpp`), each implementing `LLVMFuzzerTestOneInput` and calling APIs such as `json::parse` and the `from_*` functions for CBOR, MessagePack, UBJSON, and BJData. The same libFuzzer-based targets are also built and run by Google OSS-Fuzz, which executes them continuously with sanitizers to find crashes and undefined behaviour.
+- **Role**: libFuzzer is LLVM's fuzzing engine that runs inside the test binary and uses code-coverage feedback to generate new inputs. In nlohmann/json it is used as the fuzzing backend for the fuzz harnesses under `tests/src/` (e.g. `fuzzer-parse_json.cpp`), each implementing `LLVMFuzzerTestOneInput` and calling APIs such as `json::parse` and the `from_*` functions for CBOR, MessagePack, UBJSON, and BJData. The same libFuzzer-based targets are also built and run by Google OSS-Fuzz, which executes them continuously with sanitizers to find crashes and undefined behaviour.
 - **Potential Misbehaviours**: libFuzzer can only explore code that is reachable through the fuzz harness and within the time and resources it is given, so it can miss important edge cases or provide misleading coverage.
 - **Severity**: Medium - Bugs that are not found by libFuzzer (false negatives) can still reach users if they are not caught by other fuzzers, tests, or reviews.
 - **Detectability**: Low - Missed edge cases are they are typically discovered later through other fuzzers, unit and regression tests, or bug reports from users.
@@ -208,7 +208,7 @@ This file provides an assessment of all third-party tools used in the developmen
   - Broken links or formatting problems reported by users can be fixed by updating the Markdown sources or the MkDocs configuration, with all changes tracked and reviewed like normal code changes.
 
 ### OSS-Fuzz
-- **Role**: OSS-Fuzz is Google’s hosted service for continuous fuzzing of open-source projects. nlohmann/json is enrolled there as the `json` project, where OSS-Fuzz builds the repository together with its libFuzzer-based fuzz harnesses under `tests/src/` (e.g. `fuzzer-parse_json.cpp`, `fuzzer-parse_cbor.cpp`,..`) and runs the resulting fuzzers continuously with various sanitizer configurations against all supported parsers. The integration is documented in the project’s documentation/README, and several GitHub issues (e.g. #389, #409, #452, #577) show concrete bugs that were reported by OSS-Fuzz and then fixed in the library.
+- **Role**: OSS-Fuzz is Google's hosted service for continuous fuzzing of open-source projects. nlohmann/json is enrolled there as the `json` project, where OSS-Fuzz builds the repository together with its libFuzzer-based fuzz harnesses under `tests/src/` (e.g. `fuzzer-parse_json.cpp`, `fuzzer-parse_cbor.cpp`,..`) and runs the resulting fuzzers continuously with various sanitizer configurations against all supported parsers. The integration is documented in the project's documentation/README, and several GitHub issues (e.g. #389, #409, #452, #577) show concrete bugs that were reported by OSS-Fuzz and then fixed in the library.
 - **Potential Misbehaviours**: OSS-Fuzz can experience service outages or build/configuration issues, meaning that fuzzing temporarily stops or some fuzz targets are not executed as expected. It can also report false positives, which may consume maintainer time, while still missing other edge cases that do not get reached by the current fuzz setup.
 - **Severity**: Medium - Continuous fuzzing from OSS-Fuzz is an important safety net for catching parser bugs and undefined behaviour over time. If it stops working or misses certain paths, bugs may remain undetected longer, but OSS-Fuzz itself never modifies the source code or the shipped `json.hpp`.
 - **Detectability**: Medium - problems with OSS-Fuzz (such as build failures or missing runs) are visible on the OSS-Fuzz project dashboards and through email notifications, but the absence of new reports does not guarantee the absence of bugs.
@@ -232,7 +232,7 @@ This file provides an assessment of all third-party tools used in the developmen
 - **Role**: Valgrind is a runtime analysis tool used in nlohmann/json to run the test binaries under a memory checker in order to detect leaks and invalid memory accesses. According to the quality assurance documentation and the CMake setup, the test suite can be executed under Valgrind via the `JSON_Valgrind` CMake option, which configures CTest to run the tests with Valgrind and to treat reported memory errors as test failures (using options such as `--leak-check=full` and a non-zero `--error-exitcode`).
 - **Potential Misbehaviours**: Valgrind can miss some memory errors or report false positives. It also slows down execution significantly, so runs may use smaller inputs or be executed less frequently.
 - **Severity**: High - Memory errors, invalid accesses, or leaks are critical, and if Valgrind fails to reveal them and they are not caught by other tools, they can affect applications using nlohmann/json.
-- **Detectability**: High - Valgrind’s limitations are partly mitigated because the same test suite is also run with compiler sanitizers (e.g. AddressSanitizer).
+- **Detectability**: High - Valgrind's limitations are partly mitigated because the same test suite is also run with compiler sanitizers (e.g. AddressSanitizer).
 - **Mitigation**:
   - Valgrind is used alongside compiler sanitizers, fuzzing (including OSS-Fuzz), and a high-coverage unit test suite.
   - Memory related findings from Valgrind or sanitizers are treated as defects and, where appropriate, fixed and covered by regression tests.
@@ -250,15 +250,15 @@ Each tool was evaluated based on:
 
 ## Risk Categorization
 
-The highest-severity tools are those that directly affect the build and test artefact, namely amalgamate.py, CMake, Hedley, Clang and doctest, while the fuzzing tools AFL, libFuzzer and OSS-Fuzz are assessed as medium severity with low detectability, and the documentation and automation tools (such as MkDocs, Material for MkDocs, GitHub Changelog Generator and Probot) are considered low severity because they do not influence the library’s behaviour.
+The highest-severity tools are those that directly affect the build and test artefact, namely amalgamate.py, CMake, Hedley, Clang and doctest, while the fuzzing tools AFL, libFuzzer and OSS-Fuzz are assessed as medium severity with low detectability, and the documentation and automation tools (such as MkDocs, Material for MkDocs, GitHub Changelog Generator and Probot) are considered low severity because they do not influence the library's behaviour.
 
 | Tool                       | Severity | Detectability |
 |----------------------------|----------|---------------|
 | amalgamate.py              | High     | High          |
 | CMake                      | High     | High          |
 | Hedley                     | High     | High          |
-| Clang                      | High     | Medium        |
 | doctest                    | High     | High          |
+| Clang                      | High     | Medium        |
 | Coverity Scan              | Medium   | High          |
 | cppcheck                   | Medium   | High          |
 | AppVeyor                   | Medium   | High          |
