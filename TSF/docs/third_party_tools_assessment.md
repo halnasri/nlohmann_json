@@ -42,7 +42,7 @@ This file provides an assessment of all third-party tools used in the developmen
   - tests not running or reporting wrong results,
   - Windows-specific issues not being exercised properly.
 - **Severity**: Medium - if Windows CI is broken or misconfigured, Windows-specific problems might not be detected, but the source code and `json.hpp` are not modified by AppVeyor.
-- **Detectability**: High - CI results are visible for every commit and pull request, and unexpected failures or missing runs are noticed by maintainers. Suspicious results can be cross-checked with local Windows builds. Any missbehaiviors can also be reported by the users.
+- **Detectability**: High - CI results are visible for every commit and pull request, and unexpected failures or missing runs are noticed by maintainers. Suspicious results can be cross-checked with local Windows builds. Any misbehaviours can also be reported by the users.
 - **Mitigation**: Multiple CI platforms (GitHub Actions, Cirrus CI), cross-platform testing
 
 ### Artistic Style
