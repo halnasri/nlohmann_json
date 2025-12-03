@@ -21,4 +21,4 @@ evidence:
             - https://github.com/eclipse-score/inc_nlohmann_json/actions
 ---
 
-A list of tests, which is extracted from the test execution, is provided, along with a list of test environments, a list of fault induction tests and test construction configurations and results.
+A list of tests, which is extracted from the test execution, is provided, along with a list of test environments.
