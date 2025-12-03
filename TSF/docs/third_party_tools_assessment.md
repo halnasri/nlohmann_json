@@ -193,7 +193,7 @@ This file provides an assessment of all third-party tools used in the developmen
 - **Severity**: Low - Problems in the theme can make the documentation harder to read or navigate, but they do not change the library sources.
 - **Detectability**: High - Visual or layout issues are usually easy to spot when viewing the documentation site during local builds or on the deployed site, and users can report any problems they encounter.
 - **Mitigation**:
-- - The documentation is built and viewed locally during development (following the documented Contributing Guidlines).
+  - The documentation is built and viewed locally during development (following the documented Contributing Guidlines).
   - The site can be checked in multiple browsers and on different devices to catch theme-related layout or responsiveness problems.
   - The mkdocs and Material for MkDocs versions used in `docs/mkdocs` are pinned and updated via pull requests, which are reviewed and must pass CI before being merged.
 
