@@ -52,13 +52,13 @@ results for all expected tests (both pass / fail and performance).
 - Can we look at any individual test result, and establish what it relates to?
   - **Answer**: For CI runs, yes. Each stored test result is linked to a specific CI workflow run (repo, run_id, run_attempt) and timestamp in workflow_info, so we can relate it back to the corresponding GitHub workflow execution, code revision and CI configuration (see JLS-18).
 - Can we trace from any test result to the expectation it relates to?
-  - **Answer**: 
+  - **Answer**: Each stored test result includes the test name (e.g. `test-unicode1`), which maps to a concrete test source file. These test files are referenced in TSF statements (e.g. `NPF-01.1`) that are linked to their parent Expectations (e.g. `NPF-01`). This allows us to trace from an individual test result to the corresponding Expectation.
 - Can we identify precisely which environment (software and hardware) were used?
   - **Answer**: 
 - How many pass/fail results would be expected, based on the scheduled tests?
   - **Answer**: 
 - Do we have all of the expected results?
-  - **Answer**: Yes, for the selected workflows we typically have results for each run potential gaps arise when CI runs are skipped or cancelled, or due to storge limitation 
+  - **Answer**: Yes, for the selected workflows we typically have results for each run potential gaps arise when CI runs are skipped or cancelled, or due to storge limitation. 
 - Do we have time-series data for all of those results?
   - **Answer**: Stored test results are timestamped and can be queried as a time series (JLS-18, JLS-45), but due to storage limits we only keep a truncated history rather than a complete time series over the whole project lifetime.
 - If there are any gaps, do we understand why?
