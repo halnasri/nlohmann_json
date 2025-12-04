@@ -52,30 +52,30 @@ As a result, for example, any binary inputs without reproducible build steps or 
     - **Answer**: The nlohmann/json library consists of only source code in the form of a single header file, and has no binary artifacts (see JLS-47).
 - Record of component assessments:
   - Originating project and version
-    - **Answer**: The nlohmann/json library has no external components (see JLS-34)
+    - **Answer**: The nlohmann/json library has no external components (see JLS-34).
   - Date of assessments and identity of assessors
-    - **Answer**: The nlohmann/json library has no external components (see JLS-34)
+    - **Answer**: The nlohmann/json library has no external components (see JLS-34).
   - Role of component in nlohmann/json
-    - **Answer**: The nlohmann/json library has no external components (see JLS-34)
+    - **Answer**: The nlohmann/json library has no external components (see JLS-34).
   - Sources of bug and risk data
-    - **Answer**: The nlohmann/json library has no external components (see JLS-34)
+    - **Answer**: The nlohmann/json library has no external components (see JLS-34).
   - Potential misbehaviours and risks identified and assessed
-    - **Answer**: The nlohmann/json library has no external components (see JLS-34)
+    - **Answer**: The nlohmann/json library has no external components (see JLS-34).
 - List of tools used to build and verify nlohmann/json
-  - **Answer**: Provided in JLS-48 and JLS-49
+  - **Answer**: Provided in JLS-48 and JLS-49.
 - Record of tool assessments:
   - Originating project and tool version
-    - **Answer**: Provided in JLS-48 and JLS-50
+    - **Answer**: Provided in JLS-48 and JLS-50.
   - Date of assessments and identity of assessors
-    - **Answer**: Provided in JLS-50
+    - **Answer**: Provided in JLS-50.
   - Role of the tool in nlohmann/json releases
-    - **Answer**: Provided in JLS-48 and JLS-50
+    - **Answer**: Provided in JLS-48 and JLS-50.
   - Potential misbehaviours and impacts
-    - **Answer**: Provided in JLS-50
+    - **Answer**: Provided in JLS-50.
   - Detectability and severity of impacts
-    - **Answer**: Provided in JLS-50
+    - **Answer**: Provided in JLS-50.
 - Tests or measures to address identified impacts
-  - **Answer**: Provided in JLS-50
+  - **Answer**: Provided in JLS-50.
 
 **Confidence scoring**
 
