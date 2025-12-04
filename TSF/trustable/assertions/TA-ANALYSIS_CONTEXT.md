@@ -89,5 +89,5 @@ that may indicate problems in development, test, or production.
 - Has the Misbehaviour identification process been verified using known bad data?
   - **Answer**: Known bad inputs come from bug labelled issues and fuzzing in the upstream nlohmann/json project. These misbehaviours are extracted and summarised by the TSF script referenced in JLS-17 (`generate_list_of_misbehaviours.py`, `nlohmann_misbehaviours_comments.md`). JLS-26 ensures that any CI failure caused by such bad cases is analysed and fixed.
 - Are results shown to be reproducible?
-  - **Answer**: CI workflows use pinned containers and GitHub Actions to stabilise the environment, and a dedicated ci_reproducible_tests target exists to run a reproducible subset of tests, but not all tests are fully reproducible. See 
+  - **Answer**: A dedicated ci_reproducible_tests target exists to run a reproducible subset of tests, but not all tests are fully reproducible (see JLS-62).
 
