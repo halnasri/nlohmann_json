@@ -87,7 +87,7 @@ that may indicate problems in development, test, or production.
 - Have the underlying assumptions been verified using known good data?
   - **Answer**:  The input data from [nlohmann/json_test_data](https://github.com/nlohmann/json_test_data/tree/master) which is used for the tests contain both known good data and known bad data. As each expectation is mapped to a sub-set of tests, it is indeed verified that the underlying assumption is reasonably verified.
 - Has the Misbehaviour identification process been verified using known bad data?
-  - **Answer**: Yes. The misbehaviour identification process has been exercised using known bad data (see https://github.com/nlohmann/json_test_data/tree/master/json_tests).
+  - **Answer**: Yes. The misbehaviour identification process has been exercised using known bad data from [nlohmann/json_test_data](https://github.com/nlohmann/json_test_data/tree/master)
 - Are results shown to be reproducible?
   - **Answer**: A dedicated ci_reproducible_tests target exists to run a reproducible subset of tests, but not all tests are fully reproducible (see JLS-62).
 
