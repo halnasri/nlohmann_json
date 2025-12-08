@@ -37,12 +37,7 @@ The remaining data can be found on the GitHub [insights page](https://github.com
 
 ### `ci_test_coverage_clang`
 
-This job was a short-lived Clang coverage experiment. In the selected
-time window it only ran 6 times, several of them as part of the
-“Fix coverage job” pull request where the coverage script was
-intentionally broke n and iteratively fixed. The failures in these runs
-are due to coverage tooling / CI configuration issues, not failing unit
-tests or misbehaviour in the JSON library.
+This job was a short-lived Clang coverage experiment. In the selected time window it only ran 6 times, several of them as part of the "Fix coverage job" pull request where the coverage script was intentionally broke n and iteratively fixed. The failures in these runs are due to coverage tooling / CI configuration issues, not failing unit tests or misbehaviour in the JSON library.
 
 ### `ci_static_analysis_clang (ci_clang_tidy)`
 
@@ -50,7 +45,7 @@ In the analyzed period, most failed `ci_static_analysis_clang (ci_clang_tidy)` r
 
 ### `ci_test_coverage` 
 
-The failure rate of `ci_test_coverage` in this period is explained by intentional CI maintenance rather than unstable tests. A significant portion of failures comes from work on PR [#4595](https://github.com/nlohmann/json/pull/4595), where the coverage workflow itself was updated and repeatedly executed on the `fix-coverage` branch; several intermediate runs failed until the configuration of `gcov`, `lcov`, and the Coveralls uploader was corrected. Additional failures stem from PR [#4709](https://github.com/nlohmann/json/pull/4709), which upgraded the minimum CMake version and introduced new CMake and OpenSSL configurations in CI. During this transition, some `ubuntu.yml` workflow runs—including the coverage job—failed until the revised toolchain setup was stabilized. All changes were merged only after `ci_test_coverage` succeeded, and the underlying unit tests remained consistently green throughout, meaning the elevated failure rate reflects CI/tooling evolution rather than regressions in the JSON library.
+The failure rate of `ci_test_coverage` in this period is explained by intentional CI maintenance rather than unstable tests. A significant portion of failures comes from work on PR [#4595](https://github.com/nlohmann/json/pull/4595), where the coverage workflow itself was updated and repeatedly executed on the `fix-coverage` branch and several intermediate runs failed until the configuration of `gcov`, `lcov`, and the Coveralls uploader was corrected. Additional failures stem from PR [#4709](https://github.com/nlohmann/json/pull/4709), which upgraded the minimum CMake version and introduced new CMake and OpenSSL configurations in CI. During this transition, some `ubuntu.yml` workflow runs, including the coverage job, failed until the revised toolchain setup was stabilized. All changes were merged only after `ci_test_coverage` succeeded, and the underlying unit tests remained consistently green throughout, meaning the elevated failure rate reflects CI/tooling evolution rather than regressions in the JSON library.
 
 
 ### `ci_test_clang`
