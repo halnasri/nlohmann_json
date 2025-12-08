@@ -45,9 +45,9 @@ by confirming that test results remain unchanged when no changes are intended.
 - Analysis of test data, including thresholds in relation to appropriate statistical properties.
   - **Answer**: The analysis of test data is captured by JLS-17, but no explicit quantitative thresholds are defined.
 - Analysis of failures
-  - **Answer**: Provided by JLS-17 and JLS-26.
+  - **Answer**: Provided by JLS-26 and JLS-17.
 - Analysis of spikes and trends
-  - **Answer**: There is currently no time-series or trend analysis over test or monitoring data; failures and misbehaviours are handled case-by-case.
+  - **Answer**: CI test failure rates for the upstream `nlohmann/json` repository and `eclipse-score/inc_nlohmann_json` are analysed using the time-series based GitHub Actions metrics views. This analysis is performed manually (see JLS-17). There is currently no fully automated, continuous analysis of failures.
 - Validation of analysis methods used
   - **Answer**: There is no separate formal validation of the analysis methods.
 
@@ -69,7 +69,7 @@ that may indicate problems in development, test, or production.
 - How well does the production data correlate with our test data?
   - **Answer**: There are no production data.
 - Are we publishing our data analysis?
-  - **Answer**: Analyses of test environments and reported misbehaviours are published in the TSF documentation (via list_of_test_environments.md and nlohmann_misbehaviours_comments.md), but there is currently no published analysis of production monitoring data.
+  - **Answer**: Analyses of CI tests failure rates are published in the TSF documentation on GitHub (via ci_failure_rate_analysis.md), but there is currently no published analysis of production monitoring data.
 - Are we comparing and analysing production data vs test?
   - **Answer**: There is no production data.
 - Are our results getting better, or worse?
@@ -87,7 +87,7 @@ that may indicate problems in development, test, or production.
 - Have the underlying assumptions been verified using known good data?
   - **Answer**:  Key assumptions and conditions for analysing test data and misbehaviours are documented in the TSF scripts and documentation (e.g. capture_test_data_memory_sensitive.py, generate_list_of_tests.py, generate_list_of_misbehaviours.py, and the supporting statements such as JLS-17 and JLS-26). However, a complete, consolidated specification of all analysis assumptions, in particular for monitoring-based indicators and explicit target failure rates, is not yet available.
 - Has the Misbehaviour identification process been verified using known bad data?
-  - **Answer**: Known bad inputs come from bug labelled issues and fuzzing in the upstream nlohmann/json project. These misbehaviours are extracted and summarised by the TSF script referenced in JLS-17 (`generate_list_of_misbehaviours.py`, `nlohmann_misbehaviours_comments.md`). JLS-26 ensures that any CI failure caused by such bad cases is analysed and fixed.
+  - **Answer**: Yes. The misbehaviour identification process has been exercised using known bad data (see https://github.com/nlohmann/json_test_data/tree/master/json_tests).
 - Are results shown to be reproducible?
   - **Answer**: A dedicated ci_reproducible_tests target exists to run a reproducible subset of tests, but not all tests are fully reproducible (see JLS-62).
 
