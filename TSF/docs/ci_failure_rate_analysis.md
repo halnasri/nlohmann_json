@@ -37,7 +37,7 @@ The remaining data can be found on the GitHub [insights page](https://github.com
 
 ### `ci_test_coverage_clang`
 
-This job was a short-lived Clang coverage experiment. In the selected time window it only ran 6 times, several of them as part of the "Fix coverage job" pull request where the coverage script was intentionally broke n and iteratively fixed. The failures in these runs are due to coverage tooling / CI configuration issues, not failing unit tests or misbehaviour in the JSON library.
+This job was a short-lived Clang coverage experiment. In the selected time window it only ran 6 times, several of them as part of the "Fix coverage job" pull request where the coverage script was intentionally broken and iteratively fixed. The failures in these runs are due to coverage tooling / CI configuration issues, not failing unit tests or misbehaviour in the JSON library.
 
 ### `ci_static_analysis_clang (ci_clang_tidy)`
 
@@ -56,7 +56,8 @@ In this period, `ci_test_clang` ran 25 times and failed 3 times (12%). All failu
 
 
 ## Conclusion
-or the selected three-month window before the v3.12.0 release, the Ubuntu CI for `nlohmann/json` shows a small set of jobs with noticeably higher failure rates, but in all cases these can be traced back to intentional CI/tooling work or strict analysis settings, not to undetected misbehaviour of the library itself. All of these high failure rates occurred on PR branches, were visible to developers, and were resolved before merging, while the majority of other jobs (including `ci_test_gcc`, `ci_test_standards_*` and most compiler-matrix entries) remain at or near 0 %. Taken together, this indicates a stable CI system that reacts as intended to real issues and configuration changes, with no evidence of systematic, unexplained spikes in test failures for the Ubuntu workflow.
+
+For the selected three-month window before the v3.12.0 release, the Ubuntu CI for `nlohmann/json` shows a small set of jobs with noticeably higher failure rates, but in all cases these can be traced back to intentional CI/tooling work or strict analysis settings, not to undetected misbehaviour of the library itself. All of these high failure rates occurred on PR branches, were visible to developers, and were resolved before merging, while the majority of other jobs (including `ci_test_gcc`, `ci_test_standards_*` and most compiler-matrix entries) remain at or near 0 %. Taken together, this indicates a stable CI system that reacts as intended to real issues and configuration changes, with no evidence of systematic, unexplained spikes in test failures for the Ubuntu workflow.
 
 
 # Failure rate analysis for eclipse-score/inc_nlohmann_json Parent-Workflow/Ubuntu CI
