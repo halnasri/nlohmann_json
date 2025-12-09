@@ -27,7 +27,7 @@ The distribution of scores for expectations nodes across the graph.
 
 |bin|count|
 |-|-|
-|0.0-0.1  |2|
+|0.0-0.1  |1|
 |0.1-0.2  |0|
 |0.2-0.3  |0|
 |0.3-0.4  |0|
@@ -118,4 +118,4 @@ The distribution of scores for all nodes across the graph.
 |orphaned statements|0|
 |statements with evidence|46|
 |evidence|194|
-|expectations|2|
+|expectations|1|
