@@ -82,25 +82,25 @@ monitoring mechanisms have been implemented to collect the required data.
 - How appropriate/thorough are the analyses that led to the indicators?
   - **Answer**: Since no misbehaviours for the use of the library for parsing and verification of JSON data according to RFC8259 have been identified, no warning indicators are implemented.
 - How confident can we be that the list of indicators is comprehensive?
-  - **Answer**:  
+  - **Answer**:  For the scope of `eclipse-score/inc_nlohmann_json` as a static library, we are reasonably confident that CI-based indicators on test failures and coverage are sufficient.
 - Could there be whole categories of warning indicators still missing?
-  - **Answer**:  Yes, there could. Within S-CORE, however, any warning indicator that is not natively implemented within the original nlohmann/json should be implemented in the wrapper defining the interface between the library and the project using it.
+  - **Answer**:  
 - How has the list of advance warning indicators varied over time?
-  - **Answer**: 
+  - **Answer**: The current AWIs (coverage threshold and test-failure rate on protected branches) were introduced as CI-based quality gates. No additional AWIs have been added or removed so far
 - How confident are we that the indicators are leading/predictive?
-  - **Answer**: 
+  - **Answer**: The indicators are leading in the sense that they prevent changes that reduce coverage or increase test failures from entering protected branches and being used as a basis for integration and release. 
 - Are there misbehaviours that have no advance warning indicators?
   - **Answer**: 
 - Can we collect data for all indicators?
-  - **Answer**: 
+  - **Answer**: Both indicators (JLS-54 and JLS-55) are derived from CI runs, and the required data (coverage and test results) is collected automatically for each CI execution.
 - Are the monitoring mechanisms used included in our Trustable scope?
-  - **Answer**: 
+  - **Answer**: There is no monitoring mechanisms.
 - Are there gaps or trends in the data?
   - **Answer**: 
 - If there are gaps or trends, are they analysed and addressed?
   - **Answer**: 
 - Is the data actually predictive/useful?
-  - **Answer**: 
+  - **Answer**: Yes, the CI data is useful to prevent regressions in the tested behaviour of the library from entering protected branches. 
 - Are indicators from code, component, tool, or data inspections taken into
 consideration? 
   - **Answer**: 

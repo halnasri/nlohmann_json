@@ -63,6 +63,11 @@ jobs:
     with:
       artifact_id: "ubuntu-${{ github.sha }}"
 
+  coverage_gate:
+      name: Run Coverage Gate Workflow
+      needs: [ubuntu]
+      uses: ./.github/workflows/coverage_gate.yml
+
   dependency_review:
     name: Run dependency_review Workflow
     if: ${{ github.event_name == 'pull_request' }}  # only run dependency_review for PRs
@@ -73,7 +78,7 @@ jobs:
   collect_artifacts_pr:
     name: "Collect Results & Deploy (PR)"
     if: github.event_name == 'pull_request'
-    needs: [labeler, SME_review_checker, check_amalgamation, test_trudag_extensions, dependency_review, codeql, ubuntu]
+    needs: [labeler, SME_review_checker, check_amalgamation, test_trudag_extensions, dependency_review, codeql, ubuntu, coverage_gate]
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -106,7 +111,7 @@ jobs:
   collect_artifacts_non_pr:
     name: "Collect Results & Deploy (Non-PR)"
     if: github.event_name != 'pull_request'
-    needs: [labeler, test_trudag_extensions, codeql, ubuntu]  # no check_amalgamation, dependency_review or SME_review_checker if non PR
+    needs: [labeler, test_trudag_extensions, codeql, ubuntu, coverage_gate]  # no check_amalgamation, dependency_review or SME_review_checker if non PR
     runs-on: ubuntu-latest
     strategy:
       matrix:
