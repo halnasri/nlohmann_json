@@ -3,4 +3,4 @@ level: 1.1
 normative: true
 ---
 
-In eclipse-score/inc_nlohmann_json, a GitHub workflow monitors the failure rate of unit and integration tests on protected branches. If the failure rate exceeds a defined threshold, it blocks further merges.
+In eclipse-score/inc_nlohmann_json, a GitHub workflow regularly checks the number of open pull requests in the main repository. If the number exceeds a defined threshold, the workflow fails and blocks further merges until the number of open pull requests is reduced below that threshold.
