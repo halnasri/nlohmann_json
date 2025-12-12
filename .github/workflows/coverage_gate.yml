@@ -29,22 +29,24 @@ jobs:
 
       - name: Enforce coverage threshold
         run: |
-          THRESHOLD=99
+          THRESHOLD=99.0
 
-          echo "=== First few floating numbers in index.html ==="
-          grep -oE "[0-9]+\.[0-9]+" coverage_html/index.html | head -n10 || true
+          echo "=== Extracting line coverage for 'Lines:' from index.html ==="
 
-          LINE_COV=$(grep -oE "[0-9]+\.[0-9]+" coverage_html/index.html | head -n1 || true)
-          echo "Raw extracted coverage: '${LINE_COV}'"
+          HEADER_BLOCK=$(grep -A1 'Lines:' coverage_html/index.html || true)
+          echo "$HEADER_BLOCK"
+
+          LINE_COV=$(echo "$HEADER_BLOCK" | grep -oE "[0-9]+(\.[0-9]+)?" | head -n1 || true)
+          echo "Extracted Line coverage: '${LINE_COV}'"
 
           if [ -z "$LINE_COV" ]; then
-            echo "Could not find any numeric coverage value in index.html"
+            echo "Could not extract line coverage for 'Lines:' from index.html"
             exit 1
           fi
 
-          echo "Line coverage extracted: ${LINE_COV}% (threshold: ${THRESHOLD}%)"
+          COMPARE=$(awk -v cov="$LINE_COV" -v thr="$THRESHOLD" 'BEGIN { if (cov < thr) print "lt"; else print "ge"; }')
 
-          if [ "${LINE_COV%.*}" -lt "$THRESHOLD" ]; then
+          if [ "$COMPARE" = "lt" ]; then
             echo "Coverage below threshold, failing job."
             exit 1
           fi
