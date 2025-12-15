@@ -16,7 +16,7 @@ evidence:
             - "./TSF/tests"
     type: https_response_time
     configuration:
-        target_seconds: 2.0
+        target_seconds: 2
         urls:
             - https://github.com/eclipse-score/inc_nlohmann_json/actions
 ---
