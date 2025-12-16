@@ -2,7 +2,7 @@
 level: 1.1
 normative: true
 references:
-        - type: website
+        - type:  project_website
           url: "https://scorecard.dev/viewer/?uri=github.com%2Fnlohmann%2Fjson"
           description: "OpenSSF Scorecard Report for the nlohmann/json library."
         - type: website

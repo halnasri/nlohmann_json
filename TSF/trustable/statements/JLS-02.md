@@ -2,7 +2,7 @@
 level: 1.1
 normative: true
 references:
-        - type: project_website
+        - type: website
           url: "https://introspector.oss-fuzz.com/project-profile?project=json"
           description: "most recent report for fuzzing introspection of nlohmann/json with historical plots"
         - type: web_content
@@ -11,7 +11,7 @@ references:
         - type: web_content
           url: "https://raw.githubusercontent.com/nlohmann/json/refs/heads/develop/.github/workflows/cifuzz.yml"
           description: "Configuration file for Fuzz-Testing pipeline in the original nlohmann/json repository"
-        - type: web_content
+        - type: project_website
           url: "https://scorecard.dev/viewer/?uri=github.com%2Fnlohmann%2Fjson"
           description: "OpenSSF Scorecard Report for nlohmann/json, where score for 'Fuzzing' supports this statement."
 evidence:
@@ -20,6 +20,7 @@ evidence:
                 target_seconds: 2
                 urls:
                     - "https://introspector.oss-fuzz.com/project-profile?project=json"
+                    - "https://scorecard.dev/viewer/?uri=github.com%2Fnlohmann%2Fjson"
 score:
     Jonas-Kirchhoff: 1.0
     Erikhu1: 1.0
