@@ -13,4 +13,4 @@ evidence:
             - "https://github.com/eclipse-score/inc_nlohmann_json/actions"
 ---
 
-Github host environment is used as test environment for eclipse-score/inc_nlohmann_json.
+Github hosted runners are used as the test environment for eclipse-score/inc_nlohmann_json.
