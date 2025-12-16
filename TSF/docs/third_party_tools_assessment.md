@@ -108,6 +108,18 @@ This file provides an assessment of all third-party tools used in the developmen
 - **Mitigation**:
   - Coverage is also generated locally and in CI using `lcov` and viewed as HTML reports, so Coveralls results can be cross-checked against these local reports.
 
+### clang-tidy
+- **Role**: Clang-Tidy is used as static analysis tool to detect bug patterns, unsafe constructs, and style/performance issues in the code base. In nlohmann/json it is explicitly part of the project’s “Static analysis” quality assurance activities, and it is configured via a repository-wide [.clang-tidy](https://github.com/nlohmann/json/blob/develop/.clang-tidy) configuration file.
+- **Potential Misbehaviours**: 
+  - False positives (reporting issues that are not real problems) or false negatives (missing real issues).
+  - Results can vary between Clang-Tidy versions and depending on compile flags / include paths.
+- **Severity**: Medium - Clang-Tidy findings are advisory and incorrect or missing findings can reduce confidence and leave issues undiscovered, but the tool does not modify shipped artefacts by itself.
+- **Detectability**: Medium - False positives are usually spotted during review and false negatives are harder to detect and may only surface through other analyzers, tests, fuzzing, or user reports.
+- **Mitigation**: 
+  - Clang-Tidy is not the only analysis gate, results are complemented by other static analyzers (e.g. cppcheck, Coverity, Clang Static Analyzer) and dynamic testing (unit tests, fuzzing, sanitizers). 
+  - The .clang-tidy configuration is version-controlled and reviewed like normal code changes. 
+  - CI uses a controlled toolchain environment (e.g. the project CI image), reducing version drift and improving reproducibility.
+
 ### Coverity Scan
 - **Role**: Coverity Scan is a hosted static analysis service that regularly analyzes the nlohmann/json code base for potential defects. The nlohmann/json repo has a dedicated Coverity Scan entry (linked via the “Coverity Scan Build Status” badge in `README.md`), where findings are listed and tracked in a web dashboard.
 - **Potential Misbehaviours**: Could miss bugs (false negatives) or report non-issues (false positives)
@@ -263,6 +275,7 @@ The highest-severity tools are those that directly affect the build and test art
 | cppcheck                   | Medium   | High          |
 | AppVeyor                   | Medium   | High          |
 | Coveralls                  | Medium   | Medium        |
+| clang-tidy                 | Medium   | Medium        |
 | AFL                        | Medium   | Low           |
 | libFuzzer                  | Medium   | Low           |
 | OSS-Fuzz                   | Medium   | Low           |
@@ -308,6 +321,7 @@ The nlohmann/json project employs a multi validation strategy with multiple redu
 - [Coveralls page for nlohmann/json](https://coveralls.io/github/nlohmann/json)
 - [Codacy project for nlohmann/json](https://app.codacy.com/gh/nlohmann/json)
 - [lcov project documentation](https://github.com/linux-test-project/lcov)
+- [clang-tidy](https://clang.llvm.org/extra/clang-tidy/)
 
 ### Tool-specific external documentation
 
