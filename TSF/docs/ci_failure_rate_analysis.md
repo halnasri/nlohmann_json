@@ -11,11 +11,15 @@ GitHub’s “failure rate” counts all non-successful job runs, including canc
 jobs (e.g. quickly closed PRs) and infrastructure/tooling problems, not only
 true regressions in the JSON library.
 
-In this document we distinguish between (a) **test-result failures/regressions**
-(unit/integration tests failing) and (b) **CI/environment/infrastructure failures**
-(runner/tooling/network issues, publishing steps, label synchronization, etc.).
-Only (a) is used as evidence for behaviour-related analysis; (b) is handled
-separately as CI/infrastructure reliability.
+In this document we distinguish between:
+- (a) **test-result failures/regressions** (unit/integration tests failing), and
+- (b) **CI/environment/infrastructure failures** (runner/tooling/network issues, publishing steps, label synchronization, etc.).
+
+**Methodology note:** For the jobs with non-zero failure rates discussed below,
+we inspected logs of failed workflow runs to determine whether failures
+originated from failing unit/integration tests (test-result failures/regressions)
+or from CI/environment/tooling steps. Only the former is treated as
+behaviour-related evidence.
 
 ## Jobs with the highest reported failure rates
 
@@ -80,11 +84,15 @@ GitHub’s “failure rate” counts all non-successful job runs, including canc
 jobs (e.g. quickly closed PRs) and infrastructure/tooling problems, not only
 true regressions in the JSON library.
 
-In this document we distinguish between (a) **test-result failures/regressions**
-(unit/integration tests failing) and (b) **CI/environment/infrastructure failures**
-(runner/tooling/network issues, publishing steps, label synchronization, etc.).
-Only (a) is used as evidence for behaviour-related analysis; (b) is handled
-separately as CI/infrastructure reliability.
+In this document we distinguish between:
+- (a) **test-result failures/regressions** (unit/integration tests failing), and
+- (b) **CI/environment/infrastructure failures** (runner/tooling/network issues, publishing steps, label synchronization, etc.).
+
+**Methodology note:** For the jobs with non-zero failure rates discussed below,
+we inspected logs of failed workflow runs to determine whether failures
+originated from failing unit/integration tests (test-result failures/regressions)
+or from CI/environment/tooling steps. Only the former is treated as
+behaviour-related evidence.
 
 ## Jobs with the highest reported failure rates
 
@@ -113,6 +121,9 @@ synchronizes GitHub issue/PR labels for this repository with the organisation
 defaults. Its 2.63 % failure rate corresponds to 1 failed run out of 38,
 and is related to repository/label management rather than to building or
 testing the JSON library.
+
+No high failure rates in this period were caused by failing unit/integration tests. All
+observed high failure rates were confined to publishing or repository-management steps.
 
 ## Conclusion
 
