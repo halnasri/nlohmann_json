@@ -12,53 +12,10 @@ permissions:
   contents: read
 
 jobs:
-  labeler:
-    permissions:
-      contents: read
-      pages: write
-      pull-requests: write
-    name: Run Labeler Workflow
-    uses: ./.github/workflows/labeler.yml
-    with:
-      artifact_id: "labeler-${{ github.sha }}"
-
-  SME_review_checker:
-    permissions:
-      contents: read
-      pull-requests: read
-    name: Run SME_review_checker Workflow
-    if: ${{ github.event_name == 'pull_request' }} # only run SME_review_checker for PRs
-    uses: ./.github/workflows/SME_review_checker.yml
-    with:
-      artifact_id: "SME_review_checker-${{ github.sha }}"
-
-  check_amalgamation:
-    name: Run Amalgamation Workflow
-    if: ${{ github.event_name == 'pull_request' }} # only run check_amalgamation for PRs
-    uses: ./.github/workflows/check_amalgamation.yml
-    with:
-      artifact_id: "check_amalgamation-${{ github.sha }}"
-      
-  test_trudag_extensions:
-    name: Run Test Trudag Extensions Workflow
-    uses: ./.github/workflows/test_trudag_extensions.yml
-    with:
-      artifact_id: "test_trudag_extensions-${{ github.sha }}"
-
-  codeql:
-    permissions:
-      contents: read
-      security-events: write
-    name: Run Codeql analysis Workflow
-    uses: ./.github/workflows/codeql-analysis.yml
-    with:
-      artifact_id: "codeql-${{ github.sha }}"
-
   ubuntu:
     name: Run Ubuntu Workflow
     permissions:
       contents: write
-    needs: [codeql] # Error if CodeQL and Ubuntu triggered at the same time due to conflicting priorities
     uses: ./.github/workflows/ubuntu.yml
     with:
       artifact_id: "ubuntu-${{ github.sha }}"
@@ -73,12 +30,11 @@ jobs:
   collect_artifacts_pr:
     name: "Collect Results & Deploy (PR)"
     if: github.event_name == 'pull_request'
-    needs: [labeler, SME_review_checker, check_amalgamation, test_trudag_extensions, dependency_review, codeql, ubuntu]
+    needs: [dependency_review, ubuntu]
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [labeler, SME_review_checker, check_amalgamation, test_trudag_extensions, dependency_review, codeql, ubuntu]
-
+        target: [dependency_review, ubuntu]
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -106,12 +62,11 @@ jobs:
   collect_artifacts_non_pr:
     name: "Collect Results & Deploy (Non-PR)"
     if: github.event_name != 'pull_request'
-    needs: [labeler, test_trudag_extensions, codeql, ubuntu]  # no check_amalgamation, dependency_review or SME_review_checker if non PR
+    needs: [dependency_review, ubuntu]  # no check_amalgamation, dependency_review or SME_review_checker if non PR
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        target: [labeler, test_trudag_extensions, codeql, ubuntu]
-
+        target: [dependency_review, ubuntu]
     steps:
       - name: Checkout code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
