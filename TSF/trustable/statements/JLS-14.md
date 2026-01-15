@@ -5,6 +5,9 @@ references:
     - type: website
       url: "https://github.com/nlohmann/json/tree/v3.12.0"
       description: "release site of nlohmann/json containing the sha values"
+    - type: verbose_file
+      path: ".github/workflows/check_amalgamation.yml"
+      description: "Lines 68-77 checks that the amalgamate.py script always produces the same output with the same inputs, by comparing the single-include header file in the PR with a re-generated one inside the workflow run."
 evidence:
     type: sha_checker
     configuration:
