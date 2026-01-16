@@ -122,7 +122,7 @@ jobs:
 
           DB_DIR="TSF"
           DB_PREFIX="MemoryEfficientTestResultData"
-          LIMIT_BYTES=$((90 * 1024 * 1024))  # rotate bei 90 MiB
+          LIMIT_BYTES=$((200 * 1024))  # 200 KiB
           today=$(date -u +%F)
 
           echo "=== Config ==="
@@ -216,10 +216,32 @@ jobs:
 
           echo "=== Final workspace files (TSF) ==="
           ls -la "$DB_DIR" || true
-          
+
+      - name: Debug chosen DB before writing
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "TSF_PERSIST_DB=$TSF_PERSIST_DB"
+          ls -la "$TSF_PERSIST_DB"
+          sqlite3 "$TSF_PERSIST_DB" "SELECT name FROM sqlite_master WHERE type='table';" || true
+
       - name: append test data
         run: |
           python3 TSF/scripts/capture_test_data_memory_sensitive.py successful
+      
+      - name: Debug chosen DB after writing
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "TSF_PERSIST_DB=$TSF_PERSIST_DB"
+          ls -la "$TSF_PERSIST_DB"
+          echo "Row counts:"
+          sqlite3 "$TSF_PERSIST_DB" "SELECT COUNT(*) FROM workflow_info;" || true
+          sqlite3 "$TSF_PERSIST_DB" "SELECT COUNT(*) FROM test_results;" || true
+          echo "git status:"
+          git status -sb
+          git diff --name-only || true
+
             
       - name: Checkout data storage branch
         if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == 'main')
