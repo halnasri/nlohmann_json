@@ -19,13 +19,6 @@ The misbehaviours are compiled from github issues of the nlohmann/json repositor
 
 
 
-### [#5046](https://github.com/nlohmann/json/issues/5046)
-- **Title:** implicit conversion of return json to std::optional no longer implicit
-- **State:** OPEN
-- **Created At:** 2026-01-06T16:50:46Z
-
-
-
 ### [#5036](https://github.com/nlohmann/json/issues/5036)
 - **Title:** get enum with default value
 - **State:** OPEN
@@ -244,6 +237,13 @@ The misbehaviours are compiled from github issues of the nlohmann/json repositor
 
 
 ## Closed Issues (since version 3.12.0)
+
+### [#5046](https://github.com/nlohmann/json/issues/5046)
+- **Title:** implicit conversion of return json to std::optional no longer implicit
+- **State:** CLOSED
+- **Created At:** 2026-01-06T16:50:46Z
+
+
 
 ### [#5013](https://github.com/nlohmann/json/issues/5013)
 - **Title:** An object is used after it's moved
