@@ -96,7 +96,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          set -x   # zeigt alle ausgeführten Commands
+          set -x
 
           trap 'echo "::error::Step failed at line $LINENO"; echo "PWD=$(pwd)"; git status -sb || true; ls -la || true' ERR
 
@@ -134,29 +134,28 @@ jobs:
 
           echo "=== Git state (before) ==="
           git --version
+          git remote -v || true
           git status -sb || true
           git branch -vv || true
-          echo
-
-          echo "=== Checking remote storage branch ==="
-          git show-ref --heads --tags | head -n 50 || true
-          git show-ref --remotes | grep -E "origin/save_historical_data" || echo "No remote ref for origin/save_historical_data (yet?)"
+          echo "Remote branches:"
+          git branch -r | sed -n '1,200p' || true
+          git branch -r | grep -F "origin/save_historical_data" || echo "No remote branch origin/save_historical_data"
           echo
 
           echo "=== Listing candidate DBs in origin/save_historical_data ==="
-          # show all candidates (sorted)
-          candidates=$(git ls-tree -r --name-only origin/save_historical_data "$DB_DIR" \
+          # list all candidates (sorted)
+          candidates="$(git ls-tree -r --name-only origin/save_historical_data "$DB_DIR" \
             | grep -E "^${DB_DIR}/${DB_PREFIX}_[0-9]{4}-[0-9]{2}-[0-9]{2}(_[0-9]{3})?\.db$" \
-            | sort || true)
+            | sort || true)"
 
           if [ -n "${candidates}" ]; then
-            echo "$candidates"
+            echo "${candidates}"
           else
             echo "No candidates found in origin/save_historical_data under ${DB_DIR}/"
           fi
           echo
 
-          latest=$(printf "%s\n" "${candidates}" | tail -n 1 || true)
+          latest="$(printf "%s\n" "${candidates}" | tail -n 1 || true)"
           echo "Latest candidate: '${latest}'"
           echo
 
@@ -181,7 +180,7 @@ jobs:
           ls -la "$latest" || true
 
           echo "=== Size check ==="
-          size=$(stat -c%s "$latest")
+          size="$(stat -c%s "$latest")"
           echo "Current DB: $latest (${size} bytes)"
           echo "Limit: ${LIMIT_BYTES} bytes"
           echo
@@ -217,11 +216,11 @@ jobs:
 
           echo "=== Final workspace files (TSF) ==="
           ls -la "$DB_DIR" || true
-
+          
       - name: append test data
         run: |
           python3 TSF/scripts/capture_test_data_memory_sensitive.py successful
-      
+            
       - name: Checkout data storage branch
         if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == 'main')
         run: |
