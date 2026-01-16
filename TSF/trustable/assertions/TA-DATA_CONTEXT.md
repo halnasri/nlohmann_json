@@ -56,10 +56,10 @@ monitored deployments.
 - Are storage and backup limits tested?
   - **Answer**: The `capture_test_data_memory_sensitive.py` script enforces size limits for the persistent database and fails the workflow if they are exceeded. There is no backup mechanism.
 - Are all data changes traceable?
-  - **Answer**:  Yes, for test data. Updates to `TSF/MemoryEfficientTestResultData.db` are performed by CI workflows and committed to the `save_historical_data` branch, so Git history records each change.
+  - **Answer**:  Yes, for test data. Updates to `TSF/data_storage/MemoryEfficientTestResultData*.db` are performed by CI workflows and committed to the `save_historical_data` branch, so Git history records each change.
 - Are concurrent changes correctly managed and resolved?
   - **Answer**: Largely yes for test data. The ubuntu workflow uses a concurrency group that cancels in-progress runs for the same reference, so typically only one job updates the persistent database at a time and remaining conflicts would surface as failed pushes and require manual resolution.
 - Is data accessible only to intended parties?
   - **Answer**: Since the library is open source, there are no unintended parties.
 - Are any subsets of our data being published?
-  - **Answer**: Yes, as a proof of concept, CI test result data is committed to the `save_historical_data` branch in the SQLite database `TSF/MemoryEfficientTestResultData.db`, which is publicly accessible via this GitHub repository.
+  - **Answer**: Yes, as a proof of concept, CI test result data is committed to the `save_historical_data` branch in the SQLite database `TSF/data_storage/MemoryEfficientTestResultData*.db`, which is publicly accessible via this GitHub repository.

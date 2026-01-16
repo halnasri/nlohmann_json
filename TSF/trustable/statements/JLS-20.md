@@ -9,14 +9,14 @@ references:
       path: ./.github/workflows/publish_documentation.yml
       description: "github workflow executing calculation and storage of trustable scores"
     - type: website
-      url: "https://github.com/eclipse-score/inc_nlohmann_json/blob/save_historical_data/TSF/TrustableScoring.db"
-      description: "the database containing the trustable scores"
+      url: "https://github.com/eclipse-score/inc_nlohmann_json/blob/save_historical_data/TSF/data_storage"
+      description: "the folder that contains databases containing the trustable scores"
 evidence:
     type: https_response_time
     configuration:
         target_seconds: 2
         urls:
-            - https://github.com/eclipse-score/inc_nlohmann_json/blob/save_historical_data/TSF/TrustableScoring.db
+            - "https://github.com/eclipse-score/inc_nlohmann_json/blob/save_historical_data/TSF/data_storage"
 score:
     Jonas-Kirchhoff: 1.0
 ---

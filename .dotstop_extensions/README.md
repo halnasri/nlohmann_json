@@ -410,10 +410,10 @@ Note: Starting with trudag v2025.09.16, "Commit date/time" is a unix timestamp (
 
 ## push
 
-This functionality writes the generated data into an sqlite database `TrustableScoring.db` located in the folder `TSF`. This database contains two tables, `commit_info`, where the metadata of "info" are stored, and `scores`, where the scores are stored, and which references `commit_info` via the date as foreign key.
+This functionality writes the generated data into an sqlite database stored under TSF/data_storage/ (e.g. TrustableScoring_YYYY-MM-DD.db). The file path can be configured via the environment variable TSF_SCORING_DB. This database contains two tables, `commit_info`, where the metadata of "info" are stored, and `scores`, where the scores are stored, and which references `commit_info` via the date as foreign key.
 
 It is intended to store data only once per commit. If, for any reason, the same commit generates data more than once, then only the most recent data are stored, and the obsolete data are deleted. This still ensures that the scoring history of the main branch is as complete as possible.
 
 ## pull
 
-This functionality parses the information stored in `TrustableScoring.db` into the format which is expected by trudag. In case that no data is found, the empty history is returned.
+This functionality parses the information stored in the scoring database configured via TSF_SCORING_DB (stored under TSF/data_storage/) into the format which is expected by trudag. In case that no data is found, the empty history is returned.
