@@ -92,56 +92,131 @@ jobs:
           git fetch --all
           git checkout save_historical_data && git pull || git checkout -b save_historical_data
       
-      - name: Select persistent DB (rotate if near GitHub limit)
+      - name: Select persistent DB (rotate if near GitHub limit) [debug]
         shell: bash
         run: |
           set -euo pipefail
+          set -x   # zeigt alle ausgeführten Commands
 
+          trap 'echo "::error::Step failed at line $LINENO"; echo "PWD=$(pwd)"; git status -sb || true; ls -la || true' ERR
+
+          echo "=== Environment ==="
+          echo "Runner: $(uname -a)"
+          echo "Date (UTC): $(date -u)"
+          echo "GITHUB_EVENT_NAME=${GITHUB_EVENT_NAME:-}"
+          echo "GITHUB_REF_NAME=${GITHUB_REF_NAME:-}"
+          echo "GITHUB_SHA=${GITHUB_SHA:-}"
+          echo "Workspace: ${GITHUB_WORKSPACE:-}"
+          echo "PWD: $(pwd)"
+          echo
+
+          echo "=== Tooling ==="
           if ! command -v sqlite3 >/dev/null 2>&1; then
+            echo "sqlite3 not found -> installing"
             sudo apt-get update
             sudo apt-get install -y sqlite3
           fi
+          echo "sqlite3: $(command -v sqlite3)"
+          sqlite3 --version || true
+          echo
 
           DB_DIR="TSF"
           DB_PREFIX="MemoryEfficientTestResultData"
           LIMIT_BYTES=$((90 * 1024 * 1024))  # rotate bei 90 MiB
           today=$(date -u +%F)
 
-          latest=$(git ls-tree -r --name-only origin/save_historical_data "$DB_DIR" \
+          echo "=== Config ==="
+          echo "DB_DIR=$DB_DIR"
+          echo "DB_PREFIX=$DB_PREFIX"
+          echo "LIMIT_BYTES=$LIMIT_BYTES"
+          echo "today=$today"
+          echo
+
+          echo "=== Git state (before) ==="
+          git --version
+          git status -sb || true
+          git branch -vv || true
+          echo
+
+          echo "=== Checking remote storage branch ==="
+          git show-ref --heads --tags | head -n 50 || true
+          git show-ref --remotes | grep -E "origin/save_historical_data" || echo "No remote ref for origin/save_historical_data (yet?)"
+          echo
+
+          echo "=== Listing candidate DBs in origin/save_historical_data ==="
+          # show all candidates (sorted)
+          candidates=$(git ls-tree -r --name-only origin/save_historical_data "$DB_DIR" \
             | grep -E "^${DB_DIR}/${DB_PREFIX}_[0-9]{4}-[0-9]{2}-[0-9]{2}(_[0-9]{3})?\.db$" \
-            | sort | tail -n 1 || true)
+            | sort || true)
+
+          if [ -n "${candidates}" ]; then
+            echo "$candidates"
+          else
+            echo "No candidates found in origin/save_historical_data under ${DB_DIR}/"
+          fi
+          echo
+
+          latest=$(printf "%s\n" "${candidates}" | tail -n 1 || true)
+          echo "Latest candidate: '${latest}'"
+          echo
+
+          # Ensure local directory exists
+          mkdir -p "$DB_DIR"
 
           if [ -z "${latest}" ]; then
+            echo "=== No existing DB found -> create initial DB ==="
             new="${DB_DIR}/${DB_PREFIX}_${today}.db"
+            echo "Creating: $new"
             sqlite3 "$new" "PRAGMA user_version = 1;"
+            ls -la "$DB_DIR" || true
             echo "TSF_PERSIST_DB=${new}" >> "$GITHUB_ENV"
             echo "Created initial DB: $new"
             exit 0
           fi
 
+          echo "=== Checkout latest DB from save_historical_data ==="
+          echo "git checkout save_historical_data -- '$latest'"
           git checkout save_historical_data -- "$latest"
+          echo "File after checkout:"
+          ls -la "$latest" || true
+
+          echo "=== Size check ==="
           size=$(stat -c%s "$latest")
           echo "Current DB: $latest (${size} bytes)"
+          echo "Limit: ${LIMIT_BYTES} bytes"
+          echo
 
           if [ "$size" -ge "$LIMIT_BYTES" ]; then
+            echo "=== Rotation triggered (size >= limit) ==="
             base="${DB_DIR}/${DB_PREFIX}_${today}.db"
             new="$base"
 
+            echo "Base new name: $base"
             if [ -e "$new" ]; then
+              echo "Base file already exists -> searching for suffix _001, _002, ..."
               i=1
               while [ -e "${DB_DIR}/${DB_PREFIX}_${today}_$(printf '%03d' "$i").db" ]; do
+                echo "Exists: ${DB_DIR}/${DB_PREFIX}_${today}_$(printf '%03d' "$i").db"
                 i=$((i+1))
               done
               new="${DB_DIR}/${DB_PREFIX}_${today}_$(printf '%03d' "$i").db"
             fi
 
+            echo "Creating new rotated DB: $new"
             sqlite3 "$new" "PRAGMA user_version = 1;"
+            ls -la "$new" || true
             echo "Rotated -> $new"
             latest="$new"
+          else
+            echo "=== Rotation NOT needed ==="
           fi
 
+          echo "=== Export ==="
           echo "TSF_PERSIST_DB=${latest}" >> "$GITHUB_ENV"
           echo "Using DB: $latest"
+
+          echo "=== Final workspace files (TSF) ==="
+          ls -la "$DB_DIR" || true
 
       - name: append test data
         run: |
