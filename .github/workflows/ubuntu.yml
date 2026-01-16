@@ -244,20 +244,20 @@ jobs:
 
             
       - name: Checkout data storage branch
-        if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == 'main')
+        if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == 'main') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           git stash push --include-untracked -- $(git status --porcelain | awk '{print $2}' | grep -vE 'TSF/MemoryEfficientTestResultData_.*\.db')
           git checkout save_historical_data
 
       - name: Commit and Push persistent data
-        if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == 'main')
+        if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == 'main')  || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           git add "$TSF_PERSIST_DB"
           git commit -m "Save test data" || echo "No test data to be saved"
           git push origin save_historical_data
       
       - name: Recover stash
-        if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == 'main')
+        if: github.event_name == 'schedule' || (github.event_name == 'push' && github.ref_name == 'main') || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           # Handle fork PRs by staying on current working branch instead of switching
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
