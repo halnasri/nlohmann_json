@@ -58,11 +58,11 @@ results for all expected tests (both pass / fail and performance).
 - How many pass/fail results would be expected, based on the scheduled tests?
   - **Answer**: All scheduled unit and integration tests are expected to pass (zero failures).
 - Do we have all of the expected results?
-  - **Answer**: Yes, for the selected workflows we typically have results for each run, potential gaps arise when CI runs are skipped or cancelled, or due to storge limitation. 
+  - **Answer**: Yes, for the selected workflows we typically have results for each run, potential gaps arise when CI runs are skipped or cancelled, or due to storage limitation. 
 - Do we have time-series data for all of those results?
-  - **Answer**: Stored test results are timestamped and can be queried as a time series (JLS-18, JLS-45), but due to storage limits we only keep a truncated history rather than a complete time series over the whole project lifetime.
+  - **Answer**: Stored test results are timestamped and can be queried as a time series (JLS-18, JLS-45). The persistent storage uses a memory-efficient strategy that records changes in test outcomes rather than storing every run as a separate data point.
 - If there are any gaps, do we understand why?
-  - **Answer**: Yes, gaps arise by design from the memory sensitive storage strategy (only initial snapshots and relevant changes are kept, see TSF/scripts/README.md and JLS-45), from the fixed size limits on the persistent database, and from the fact that we do not collect runtime monitoring data for deployed instances yet (see AOU-09, AOU-18 and AOU-19).
+  - **Answer**: Yes. Gaps can arise by design from the memory-sensitive storage strategy (only initial snapshots and relevant changes are kept, see TSF/scripts/README.md and JLS-45) and when CI runs are skipped/cancelled or fail before artefacts are generated.
 - Are the test validation strategies credible and appropriate?
   - **Answer**: Yes, the upstream nlohmann/json test suite is extensive and is complemented by additional TSF-related tests. These tests are executed on each change and on a daily schedule via CI (JLS-01, JLS-22), and their results are stored and analysed through TA-DATA and TA-ANALYSIS.
 - What proportion of the implemented tests are validated?

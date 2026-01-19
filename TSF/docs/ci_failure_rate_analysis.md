@@ -110,7 +110,7 @@ All other Parent-Workflow jobs in the last 90 days report a failure rate of
 
 The job `publish_test_data_success` is the final step of the Ubuntu child
 workflow that publishes the persistent test-result database
-(`TSF/MemoryEfficientTestResultData.db`) back to the `save_historical_data`
+(`TSF/data_storage/MemoryEfficientTestResultData*.db`) back to the `save_historical_data`
 branch. The observed 5.26 % failure rate corresponds to 2 failed runs out of
 38, and these failures are limited to this publishing step (e.g. git push /
 branch / permission issues) rather than to the execution of the tests

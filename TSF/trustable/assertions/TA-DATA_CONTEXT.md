@@ -27,13 +27,13 @@ Appropriate storage strategies safeguard availability across the product lifecyc
 - Time-stamped and traceable result records for each test execution, linked to associated system under test version and specification references.
   - **Answer**: Provided by JLS-18 and JLS-45.
 - List of monitored indicators, linked to associated specification version references.
-  - **Answer**: Runtime monitoring indicators for deployed instances are not yet implemented and are expected to be defined by the integrator (see AOU-09, AOU-18 and AOU-19).
+  - **Answer**: For eclipse-score/inc_nlohmann_json, no runtime monitoring indicators are defined because the component is a statically integrated, header-only library without long-running runtime behaviour in this repository context. The monitored indicators that are currently specified and collected are CI-/process-based: Coverage threshold gate (see JLS-54) and PR-count / review-load limit gate (see JLS-55).
 - Time-stamped and traceable test-derived data for each indicator, linked to associated system under test version and indicator specifications references.
-  - **Answer**: Indicator-level data is not yet collected and should be done by the integrator (see AOU-09).
+  - **Answer**: The CI collects time-stamped indicator data and links it to the tested commit SHA. The indicator specifications are referenced in JLS-54 (coverage gate) and JLS-55 (PR-count gate).
 - List of monitored deployments, linked to associated version and configuration references.
-  - **Answer**: Not available. Monitoring of deployed instances should be specified by the integrator (see AOU-09, AOU-18 and AOU-19).
+  - **Answer**: Monitoring is performed via CI runs (coverage gate and PR-count gate) and is traceable to the tested commit SHA and the CI workflow configuration. There is no separate monitoring of production deployments in this repository context.
 - Time-stamped and traceable production data for each indicator, linked to associated deployment metadata and specification references.
-  - **Answer**: Not available. Should be done by the integrator (see AOU-09, AOU-18 and AOU-19).
+  - **Answer**: Not available. No production/runtime monitoring data is collected, only CI-derived, time-stamped indicator data is available via the CI artefacts and run history.
 
 **Confidence scoring**
 
