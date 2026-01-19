@@ -52,7 +52,7 @@ monitored deployments.
 - Is sensitive data handled correctly (broadcasted, stored, discarded, or anonymised) with appropriate encryption and redundancy?
   - **Answer**: This is not explicitly applicable. The captured test data does not include personal or sensitive data.
 - Are proper backup mechanisms in place?
-  - **Answer**: NNo explicit project-level backup mechanism is defined beyond GitHub’s own infrastructure. The persistent test/scoring databases are stored and versioned on the save_historical_data branch, which provides history and recoverability via Git, but there is no separate off-platform backup process in place.
+  - **Answer**: No explicit project-level backup mechanism is defined beyond GitHub’s own infrastructure. The persistent test/scoring databases are stored and versioned on the save_historical_data branch, which provides history and recoverability via Git, but there is no separate off-platform backup process in place.
 - Are storage and backup limits tested?
   - **Answer**: Storage limits are addressed in CI by checking the size of the persistent databases and rotating to a new date-stamped database file once a threshold is reached, to avoid hitting GitHub file size limits. There is no separate backup mechanism beyond GitHub/Git history.
 - Are all data changes traceable?
