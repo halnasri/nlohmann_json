@@ -183,6 +183,9 @@ jobs:
 
       - name: Generate trudag report
         run: |
+          echo "[debug] TSF_SCORING_DB=$TSF_SCORING_DB"
+          test -n "$TSF_SCORING_DB"
+          test -f "$TSF_SCORING_DB" || (echo "::error::DB file missing"; ls -lah TSF/data_storage; exit 1)
           REPO_FULL="${{ github.repository }}"
           REPO_NAME="${REPO_FULL#*/}"
           OWNER_NAME="${REPO_FULL%%/*}" 
@@ -192,7 +195,7 @@ jobs:
 
       - name: Checkout data storage branch
         run: |
-          git stash push --include-untracked -- $(git status --porcelain | awk '{print $2}' | grep -vE '^TSF/data_storage/TrustableScoring.*\.db$)
+          git stash push --include-untracked -- $(git status --porcelain | awk '{print $2}' | grep -vE '^TSF/data_storage/TrustableScoring.*\.db$')
           git checkout save_historical_data
           git pull
 
