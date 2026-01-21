@@ -122,6 +122,7 @@ jobs:
           git push origin save_historical_data && git pull
       
       - name: Select persistent scoring DB (rotate if near GitHub limit)
+        id: select_db
         shell: bash
         run: |
           set -euo pipefail
