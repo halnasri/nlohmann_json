@@ -211,6 +211,7 @@ if __name__ == "__main__":
     tmp_dir = os.environ.get("RUNNER_TEMP", "/tmp")
     tmp_db_path = os.path.join(tmp_dir, "MemoryEfficientTestResults.db")
     conn = sqlite3.connect(tmp_db_path)
+    cur = conn.cursor()
     # add the expected table
     # the table TestResults.test_results differs from TestResultData.test_results in that the metadata of the commit are not saved.
     command = (
