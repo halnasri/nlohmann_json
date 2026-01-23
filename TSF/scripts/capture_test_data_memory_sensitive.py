@@ -208,9 +208,7 @@ if __name__ == "__main__":
     # Step 2: generate report of most recent test run and update persistent storage if necessary
     
     # initialise database connection
-    tmp_dir = os.environ.get("RUNNER_TEMP", "/tmp")
-    tmp_db_path = os.path.join(tmp_dir, "MemoryEfficientTestResults.db")
-    conn = sqlite3.connect(tmp_db_path)
+    conn = sqlite3.connect("MemoryEfficientTestResults.db")
     cur = conn.cursor()
     # add the expected table
     # the table TestResults.test_results differs from TestResultData.test_results in that the metadata of the commit are not saved.
