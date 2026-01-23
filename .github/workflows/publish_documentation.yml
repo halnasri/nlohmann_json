@@ -74,26 +74,27 @@ jobs:
           GITHUB_REF_SAFE: ${{ github.ref }}
         run: |
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-            # Use the branch from the pull request safely via environment variable
             current_branch="$PR_BRANCH_NAME"
           else
-            # Remove the "refs/heads/" prefix from GITHUB_REF safely
             current_branch="${GITHUB_REF_SAFE#refs/heads/}"
           fi
- 
-          # Write the branch name to $GITHUB_ENV securely
           echo "branch_name=${current_branch}" >> "$GITHUB_ENV"
 
+      # -------------------------
+      # FIX 1: only fetch, do NOT checkout here
+      # -------------------------
       - name: Fetch data storage branch
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git fetch --all
-          git checkout save_historical_data && git pull || git checkout -b save_historical_data
+          git fetch origin save_historical_data || true
 
       - name: Fetch open issues labelled as bug from nlohmann/json
         id: fetch_issues
+        shell: bash
         run: |
+          set -euo pipefail
+
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 
           # Define variables
@@ -113,13 +114,22 @@ jobs:
           gh issue list --repo "$REPO" --state closed --limit 10000 --json number,title,state,createdAt,url,labels > raw_closed_issues.json
 
           # print the list of misbehaviours
-          python3 TSF/scripts/generate_list_of_misbehaviours.py > $OUTPUT_FILE
+          python3 TSF/scripts/generate_list_of_misbehaviours.py > "$OUTPUT_FILE"
 
-          # Push misbehaviours file to save_historical_data branch
+          # -------------------------
+          # FIX 2: ensure we are on save_historical_data before commit/push
+          # -------------------------
+          git fetch origin save_historical_data || true
+          if git show-ref --verify --quiet refs/remotes/origin/save_historical_data; then
+            git checkout -B save_historical_data origin/save_historical_data
+          else
+            git checkout -b save_historical_data
+          fi
+
           git add TSF/misbehaviours.md
           git commit -m "Updated issues list" || echo "No changes to commit"
-          git push origin save_historical_data && git pull
-      
+          git push origin save_historical_data
+
       - name: Select persistent scoring DB (rotate if near GitHub limit)
         id: select_db
         shell: bash
@@ -157,7 +167,10 @@ jobs:
             exit 0
           fi
 
-          git checkout save_historical_data -- "$latest"
+          # -------------------------
+          # FIX 3: checkout file from origin/save_historical_data, not local branch
+          # -------------------------
+          git checkout origin/save_historical_data -- "$latest"
           size=$(stat -c%s "$latest")
           echo "[info] Current scoring DB: $latest (${size} bytes)"
 
@@ -182,7 +195,6 @@ jobs:
           echo "[info] Using scoring DB: $latest"
           echo "db_path=$latest" >> "$GITHUB_OUTPUT"
 
-
       - name: Generate trudag report
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -195,14 +207,22 @@ jobs:
           sqlite3 "$TSF_SCORING_DB" "PRAGMA user_version;" >/dev/null
           REPO_FULL="${{ github.repository }}"
           REPO_NAME="${REPO_FULL#*/}"
-          OWNER_NAME="${REPO_FULL%%/*}" 
+          OWNER_NAME="${REPO_FULL%%/*}"
           TSF/scripts/generate_report.sh "https://${OWNER_NAME}.github.io/${REPO_NAME}/main"
 
       - name: Checkout data storage branch
+        shell: bash
         run: |
-          git stash push --include-untracked -- . ':(exclude)TSF/data_storage' ':(exclude)TSF/data_storage/**' ':(exclude)TSF/TrustableScoring.db'
-          git checkout save_historical_data
-          git pull
+          set -euo pipefail
+          git stash push --include-untracked -- . \
+            ':(exclude)TSF/data_storage' ':(exclude)TSF/data_storage/**' ':(exclude)TSF/TrustableScoring.db' || true
+
+          git fetch origin save_historical_data || true
+          if git show-ref --verify --quiet refs/remotes/origin/save_historical_data; then
+            git checkout -B save_historical_data origin/save_historical_data
+          else
+            git checkout -b save_historical_data
+          fi
 
       - name: Store persistent data
         run: |
@@ -220,9 +240,16 @@ jobs:
           git push origin save_historical_data
 
       - name: Recover stash
+        shell: bash
         run: |
-          git checkout $branch_name
-          git stash apply
+          set -euo pipefail
+          git checkout "$branch_name" || git checkout -
+
+          if git stash list | grep -q .; then
+            git stash apply
+          else
+            echo "[info] No stash to apply"
+          fi
 
       - name: Upload trudag artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
@@ -230,7 +257,7 @@ jobs:
           name: trudag-report-${{ github.sha }}
           path: TSF/docs/generated/
           if-no-files-found: error
-          
+
   build-docs:
     needs: run-trudag
     # the eclipse-score/cicd-workflow docs.yml is adjusted to download the trudag report artifact before building the documentation
