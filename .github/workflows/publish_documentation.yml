@@ -166,7 +166,7 @@ jobs:
           sqlite3 "$TSF_SCORING_DB" "PRAGMA user_version;" >/dev/null
 
           # Ensure trudag imports the correct data_store module from this repo
-          export PYTHONPATH="${GITHUB_WORKSPACE}/TSF/scripts:${PYTHONPATH}"
+          export PYTHONPATH="${GITHUB_WORKSPACE}/TSF/scripts:${PYTHONPATH:-}"
           python3 -c "import data_store, inspect; print('data_store loaded from:', inspect.getfile(data_store))"
 
           REPO_FULL="${{ github.repository }}"
