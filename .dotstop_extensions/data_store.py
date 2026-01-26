@@ -115,3 +115,4 @@ def push_my_data(data: list[dict]):
     # terminate data-base connection
     connector.close()
     
+    
