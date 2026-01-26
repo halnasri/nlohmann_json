@@ -38,7 +38,7 @@ on:
         description: "Type of deployment: legacy or workflow"
         type: string
         required: false
-        default: "workflow"
+        default: "legacy"
 
 permissions:
   contents: read
